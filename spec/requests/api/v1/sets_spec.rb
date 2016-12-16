@@ -169,6 +169,11 @@ RSpec.describe 'Api::V1::Sets', type: :request do
         expect(response).to match_api_schema('jsonapi')
       end
 
+      it 'links to the Materials service' do
+        body = JSON.parse(response.body)
+        expect(body['data'][0]['links']['self']).to include(Rails.configuration.materials_service_url)
+      end
+
     end
 
     describe 'PATCH' do
