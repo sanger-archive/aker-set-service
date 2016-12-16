@@ -4,6 +4,12 @@ module Api
       model_name 'Aker::Set'
       attributes :name
       has_many :materials, class_name: 'Material', relation_name: :materials, acts_as_set: true
+
+      def meta(options)
+        {
+          size: @model.materials.count
+        }
+      end
     end
   end
 end

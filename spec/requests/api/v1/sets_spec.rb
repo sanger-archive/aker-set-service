@@ -64,7 +64,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
     describe 'GET' do
 
       before(:each) do
-        aker_set = create(:aker_set)
+        aker_set = create(:set_with_materials)
 
         get api_v1_set_path(aker_set), headers: {
           "Content-Type": "application/vnd.api+json",
@@ -82,6 +82,11 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
       it 'conforms to the Set schema' do
         expect(response).to match_api_schema('sets')
+      end
+
+      it 'returns the Set size in the meta' do
+        meta = JSON.parse(response.body)["data"]["meta"]
+        expect(meta["size"]).to eql(5)
       end
 
     end
