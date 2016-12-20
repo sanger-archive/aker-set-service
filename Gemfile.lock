@@ -45,19 +45,19 @@ GEM
     concurrent-ruby (1.0.2)
     database_cleaner (1.5.3)
     diff-lcs (1.2.5)
-    domain_name (0.5.20161129)
-      unf (>= 0.0.5, < 1.0.0)
     erubis (2.7.0)
     factory_girl (4.7.0)
       activesupport (>= 3.0.0)
     factory_girl_rails (4.7.0)
       factory_girl (~> 4.7.0)
       railties (>= 3.0.0)
+    faraday (0.10.0)
+      multipart-post (>= 1.2, < 3)
     ffi (1.9.14)
+    finagle-thrift (1.4.2)
+      thrift (~> 0.9.3)
     globalid (0.3.7)
       activesupport (>= 4.1.0)
-    http-cookie (1.0.3)
-      domain_name (~> 0.5)
     i18n (0.7.0)
     json-schema (2.7.0)
       addressable (>= 2.4)
@@ -77,7 +77,7 @@ GEM
     mime-types-data (3.2016.0521)
     mini_portile2 (2.1.0)
     minitest (5.10.1)
-    netrc (0.11.0)
+    multipart-post (2.0.0)
     nio4r (1.2.1)
     nokogiri (1.6.8.1)
       mini_portile2 (~> 2.1.0)
@@ -113,10 +113,6 @@ GEM
     rb-fsevent (0.9.8)
     rb-inotify (0.9.7)
       ffi (>= 0.5.0)
-    rest-client (2.0.0)
-      http-cookie (>= 1.0.2, < 2.0)
-      mime-types (>= 1.16, < 4.0)
-      netrc (~> 0.8)
     rspec-core (3.5.4)
       rspec-support (~> 3.5.0)
     rspec-expectations (3.5.0)
@@ -134,6 +130,18 @@ GEM
       rspec-mocks (~> 3.5.0)
       rspec-support (~> 3.5.0)
     rspec-support (3.5.0)
+    rswag (1.1.0)
+      rswag-api (= 1.1.0)
+      rswag-specs (= 1.1.0)
+      rswag-ui (= 1.1.0)
+    rswag-api (1.1.0)
+      rails (>= 3.1, < 5.1)
+    rswag-specs (1.1.0)
+      json-schema (~> 2.2)
+      rails (>= 3.1, < 5.1)
+      rspec-rails (>= 2.14, < 4)
+    rswag-ui (1.1.0)
+      rails (>= 3.1, < 5.1)
     spring (2.0.0)
       activesupport (>= 4.2)
     spring-watcher-listen (2.0.1)
@@ -146,16 +154,22 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
+    sucker_punch (2.0.2)
+      concurrent-ruby (~> 1.0.0)
+    swagger-ui_rails (0.1.7)
     thor (0.19.4)
     thread_safe (0.3.5)
+    thrift (0.9.3.0)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
-    unf (0.1.4)
-      unf_ext
-    unf_ext (0.0.7.2)
     websocket-driver (0.6.4)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.2)
+    zipkin-tracer (0.19.1)
+      faraday (~> 0.8)
+      finagle-thrift (~> 1.4.2)
+      rack (>= 1.0)
+      sucker_punch (~> 2.0)
 
 PLATFORMS
   ruby
@@ -164,17 +178,21 @@ DEPENDENCIES
   byebug
   database_cleaner
   factory_girl_rails
+  faraday
   json-schema
   jsonapi-resources
   listen (~> 3.0.5)
   pg (~> 0.18)
   puma (~> 3.0)
   rails (~> 5.0.0, >= 5.0.0.1)
-  rest-client
   rspec-rails
+  rswag
   spring
   spring-watcher-listen (~> 2.0.0)
+  sprockets-rails
+  swagger-ui_rails
   tzinfo-data
+  zipkin-tracer
 
 BUNDLED WITH
    1.12.5

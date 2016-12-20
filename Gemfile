@@ -21,11 +21,15 @@ gem 'puma', '~> 3.0'
 # gem 'rack-cors'
 
 gem 'jsonapi-resources'
-gem 'rest-client'
+gem 'faraday'
+gem 'zipkin-tracer'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
+  gem 'rswag'
+  gem 'swagger-ui_rails'
+  gem 'sprockets-rails'
 end
 
 group :development do
