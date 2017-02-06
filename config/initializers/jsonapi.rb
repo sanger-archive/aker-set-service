@@ -4,5 +4,5 @@ JSONAPI.configure do |config|
   #:integer, :uuid, :string, or custom (provide a proc)
   config.resource_key_type = :uuid
   # optional request features
-  config.allow_include = false
+  config.allow_include = true
 end
