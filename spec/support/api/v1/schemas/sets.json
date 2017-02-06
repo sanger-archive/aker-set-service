@@ -10,9 +10,10 @@
           "attributes": {
             "type": "object",
             "properties": {
-              "name": { "type": "string" }
+              "name": { "type": "string" },
+              "created_at": { "type": "dateTime"}
             },
-            "required": ["name"]
+            "required": ["name", "created_at"]
           }
         },
         "required": ["attributes"]
