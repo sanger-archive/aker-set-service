@@ -21,7 +21,8 @@ describe 'Sets API' do
                 attributes: {
                   type: :object,
                   properties: {
-                    name: { type: :string }
+                    name: { type: :string },
+                    created_at: { type: :dateTime}
                   }
                 }
               }
