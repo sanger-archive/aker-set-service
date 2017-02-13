@@ -40,6 +40,9 @@
                         "properties": {
                           "name": {
                             "type": "string"
+                          },
+                          "created_at": {
+                            "type": "dateTime"
                           }
                         }
                       }
@@ -80,7 +83,8 @@
                       "type": "object",
                       "properties": {
                         "name": {
-                          "type": "string"
+                          "type": "string",
+                          "uniqueItems": true
                         }
                       }
                     }
