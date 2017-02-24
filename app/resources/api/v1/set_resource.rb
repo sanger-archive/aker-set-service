@@ -2,7 +2,7 @@ module Api
   module V1
     class SetResource < JSONAPI::Resource
       model_name 'Aker::Set'
-      attributes :name, :created_at
+      attributes :name, :created_at, :locked
       has_many :materials, class_name: 'Material', relation_name: :materials, acts_as_set: true
 
       def meta(options)
