@@ -35,8 +35,8 @@ module Api
         unless copy.save
           return render json: { errors: [{ status: '422', title: 'Unprocessable entity', detail: 'The clone could not be created'}]}, status: :unprocessable_entity
         end
-        # TODO: Ideally, render the complete JSONAPI version of the copy, with links, but I can't find any way to do that
-        render json: { data: copy }, status: :created
+        jsondata = JSONAPI::ResourceSerializer.new(Api::V1::SetResource).serialize_to_hash(Api::V1::SetResource.new(copy, nil))
+        render json: jsondata, status: :created
       end
 
     private
