@@ -52,4 +52,5 @@ Rails.application.configure do
                            sample_rate: 1,
                            json_api_host: "http://localhost:9411" }
 
+  config.jwt_secret_key = 'development'
 end

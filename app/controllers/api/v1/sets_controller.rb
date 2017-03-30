@@ -4,7 +4,7 @@ end
 module Api
   module V1
 
-    class SetsController < JSONAPI::ResourceController
+    class SetsController < ApplicationController
 
       before_action :validate_uuids, only: [:update_relationship, :create_relationship]
       before_action :create_uuids, only: [:update_relationship, :create_relationship]

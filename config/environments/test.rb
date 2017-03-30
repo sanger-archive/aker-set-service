@@ -41,4 +41,6 @@ Rails.application.configure do
   # config.action_view.raise_on_missing_translations = true
 
   config.materials_service_url = "http://localhost:5000"
+
+  config.jwt_secret_key = 'test'
 end

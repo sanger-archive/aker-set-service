@@ -296,4 +296,50 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
   end
 
+  describe 'JWT' do
+
+    describe 'GET with correct secret_key' do
+
+      before(:each) do
+        aker_set = create(:set_with_materials)
+        payload = { data: {} }
+        token = JWT.encode payload, Rails.configuration.jwt_secret_key, 'HS256'
+
+        get api_v1_set_path(aker_set), headers: {
+          "Content-Type": "application/vnd.api+json",
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION": token
+        }
+
+      end
+
+      it 'returns a 200' do
+        expect(response).to have_http_status(:ok)
+      end
+
+    end
+
+    describe 'GET with bad_key' do
+
+      before(:each) do
+        aker_set = create(:set_with_materials)
+        payload = { data: {} }
+        token = JWT.encode payload, 'x', 'HS256'
+
+        get api_v1_set_path(aker_set), headers: {
+          "Content-Type": "application/vnd.api+json",
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION": token
+        }
+
+      end
+
+      it 'returns a 401' do
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+    end
+
+  end
+
 end
