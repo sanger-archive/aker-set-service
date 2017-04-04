@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170216100248) do
+ActiveRecord::Schema.define(version: 20170404125500) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -35,6 +35,16 @@ ActiveRecord::Schema.define(version: 20170216100248) do
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
     t.boolean  "locked",     default: false, null: false
+  end
+
+  create_table "permissions", force: :cascade do |t|
+    t.string   "accessible_type"
+    t.integer  "accessible_id"
+    t.string   "permitted"
+    t.integer  "permissions_mask"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.index ["accessible_type", "accessible_id"], name: "index_permissions_on_accessible_type_and_accessible_id", using: :btree
   end
 
   add_foreign_key "aker_set_materials", "aker_materials"

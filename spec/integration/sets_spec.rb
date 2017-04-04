@@ -78,15 +78,17 @@ describe 'Sets API' do
   end
 
   path '/api/v1/sets/{uuid}' do
-
+ 
     get 'Retrieves a set' do
       tags 'Sets'
       consumes 'application/vnd.api+json'
       produces 'application/vnd.api+json'
 
       parameter name: :uuid, in: :path, type: :uuid
-
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string
+      
       response '200', 'set found' do
+        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
         schema type: :object, properties: {
           data: {
             type: :object,
@@ -103,7 +105,11 @@ describe 'Sets API' do
           }
         }
 
-        let(:uuid) { create(:aker_set).id }
+        let(:uuid) do
+          s = create(:aker_set)
+          s.set_permission('jeff@here.com')
+          s.id
+        end
 
         run_test!
       end
@@ -114,7 +120,9 @@ describe 'Sets API' do
       consumes 'application/vnd.api+json'
       produces 'application/vnd.api+json'
 
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string  
       parameter name: :uuid, in: :path, type: :uuid
+
       parameter name: :set, in: :body, schema: {
         type: :object,
         properties: {
@@ -135,6 +143,8 @@ describe 'Sets API' do
       }
 
       response '200', 'set updated' do
+        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
+
         schema type: :object, properties: {
           data: {
             type: :object,
@@ -151,7 +161,11 @@ describe 'Sets API' do
           }
         }
 
-        let(:uuid) { create(:aker_set).id }
+        let(:uuid) do
+          s = create(:aker_set)
+          s.set_permission('user@here.com')
+          s.id
+        end
 
         let(:set) do
           set = build(:aker_set)
@@ -177,10 +191,16 @@ describe 'Sets API' do
       consumes 'application/vnd.api+json'
       produces 'application/vnd.api+json'
 
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string  
       parameter name: :uuid, in: :path, type: :uuid
 
       response '204', 'set deleted' do
-        let(:uuid) { create(:aker_set).id }
+        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
+        let(:uuid) do
+          s = create(:aker_set)
+          s.set_permission('user@here.com')
+          s.id
+        end
         run_test!
       end
     end
@@ -193,8 +213,10 @@ describe 'Sets API' do
       consumes 'application/vnd.api+json'
       produces 'application/vnd.api+json'
       parameter name: :uuid, in: :path, type: :uuid
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string  
 
       response '200', 'materials found' do
+        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
         schema type: :object, properties: {
           data: {
             type: :array,
@@ -208,7 +230,11 @@ describe 'Sets API' do
           }
         }
 
-        let(:uuid) { create(:set_with_materials).id }
+        let(:uuid) do
+          s = create(:set_with_materials)
+          s.set_permission('user@here.com')
+          s.id
+        end
 
         run_test!
       end
@@ -227,6 +253,8 @@ describe 'Sets API' do
       tags 'Sets'
       consumes 'application/vnd.api+json'
       produces 'application/vnd.api+json'
+
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string
 
       parameter name: :uuid, in: :path, type: :uuid
 
@@ -247,9 +275,14 @@ describe 'Sets API' do
       }
 
       response '204', 'materials replaced' do
+        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
 
-        let(:uuid) { create(:aker_set).id }
-
+        let(:uuid) do
+          s = create(:aker_set)
+          s.set_permission('user@here.com')
+          s.id
+        end
+ 
         let(:materials) do
           {
             data: create_list(:aker_material, 3).map { |material| { id: material.id, type: "materials" } }
@@ -268,6 +301,7 @@ describe 'Sets API' do
       produces 'application/vnd.api+json'
 
       parameter name: :uuid, in: :path, type: :uuid
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string  
 
       parameter name: :materials, in: :body, schema: {
         type: :object,
@@ -286,9 +320,13 @@ describe 'Sets API' do
       }
 
       response '204', 'materials added' do
+        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
 
-        let(:uuid) { create(:aker_set).id }
-
+        let(:uuid) do
+          s = create(:aker_set)
+          s.set_permission('user@here.com')
+          s.id
+        end
         let(:materials) do
           {
             data: create_list(:aker_material, 3).map { |material| { id: material.id, type: "materials" } }
@@ -307,6 +345,7 @@ describe 'Sets API' do
       produces 'application/vnd.api+json'
 
       parameter name: :uuid, in: :path, type: :uuid
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string  
 
       parameter name: :materials, in: :body, schema: {
         type: :object,
@@ -325,7 +364,13 @@ describe 'Sets API' do
       }
 
       response '204', 'materials deleted' do
-        let(:set_with_materials) { create(:set_with_materials) }
+        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
+
+        let(:set_with_materials) do
+          s = create(:set_with_materials)
+          s.set_permission('user@here.com')
+          s
+        end
 
         let(:uuid) { set_with_materials.id }
 
