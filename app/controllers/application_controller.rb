@@ -36,6 +36,8 @@ private
 		    	rescue JWT::ExpiredSignature => e
 		    		render body: nil, status: :unauthorized
 	      	end
+		else
+			session["user"] = { "user" => {"email" => "guest"}, "groups" => ["world"] }
 		end
 	end
 end

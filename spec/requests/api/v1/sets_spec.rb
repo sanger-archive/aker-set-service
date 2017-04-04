@@ -11,7 +11,8 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
         get api_v1_sets_path, headers: {
           "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION": JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256')
         }
       end
 
@@ -108,7 +109,8 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
         patch api_v1_set_path(aker_set), params: body, headers: {
           "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION": JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256')
         }
       end
 
@@ -137,7 +139,8 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
         delete api_v1_set_path(aker_set), headers: {
           "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION": JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256')
         }
       end
 
@@ -193,7 +196,8 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
         patch api_v1_set_relationships_materials_path(@set_with_materials), params: body, headers: {
           "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION": JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256')
         }
       end
 
@@ -237,7 +241,8 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
         post api_v1_set_relationships_materials_path(@set_with_materials), params: body, headers: {
           "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION": JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256')
         }
       end
 
@@ -280,7 +285,8 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
         delete api_v1_set_relationships_materials_path(@set_with_materials), params: body, headers: {
           "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION": JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256')
         }
       end
 
@@ -308,7 +314,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
         get api_v1_set_path(aker_set), headers: {
           "Content-Type": "application/vnd.api+json",
           "Accept": "application/vnd.api+json",
-          "HTTP_X_AUTHORISATION": token
+          "HTTP_X_AUTHORISATION": JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256')
         }
 
       end

@@ -2,6 +2,10 @@ FactoryGirl.define do
   factory :aker_set, class: 'Aker::Set' do
     sequence(:name) { |n| "Set #{n}" }
 
+    after(:create) do |set, evaluator|
+      set.set_permission('user@here.com')
+    end
+
     factory :set_with_materials do
 
       transient do
