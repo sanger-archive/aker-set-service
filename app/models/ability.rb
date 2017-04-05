@@ -15,7 +15,11 @@ class Ability
   end
 
   def permitted?(accessible, user_data, access)
-    accessible.permissions.exists?(['permitted = ? AND permissions_mask >= ?', user_data['user']['email'], Permission.permission_bit(access)]) ||
-    accessible.permissions.exists?(['permitted IN (?) AND permissions_mask >= ?', user_data['groups'], Permission.permission_bit(access)])
+    user = user_data['user']
+    groups = user_data['groups']
+    return true unless accessible.permissions.select { |p| p.permittable==user && p.has_permission?(access) }.empty?
+    return true unless accessible.permissions.select { |p| p.has_permission?(access) && groups.include?(p.permittable) }.empty?
+    false
   end
 end
+

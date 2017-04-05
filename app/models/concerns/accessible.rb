@@ -6,9 +6,10 @@ module Accessible
   included do
     has_many :permissions, as: :accessible
 
-    def set_permission(owner_email)
-      self.permissions.create(permitted: owner_email, permissions: [:r, :w])
-      self.permissions.create(permitted: 'world', permissions: [:r])
+    def set_permission(owner)
+      world = Group.find_or_create_by(name: 'world')
+      self.permissions.create(permittable: owner, permissions: [:r, :w])
+      self.permissions.create(permittable: world, permissions: [:r])
     end
   end
 

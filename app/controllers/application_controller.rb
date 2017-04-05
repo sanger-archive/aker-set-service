@@ -22,14 +22,17 @@ private
         session['user']
     end
 
-
 	def check_credentials
 		if request.headers.to_h['HTTP_X_AUTHORISATION']
 			begin
 				secret_key = Rails.configuration.jwt_secret_key
 				token = request.headers.to_h['HTTP_X_AUTHORISATION']
 				payload, header = JWT.decode token, secret_key, true, { algorithm: 'HS256'}
-				session["user"] = payload["data"]
+				ud = payload["data"]
+				session["user"] = {
+					"user" => User.find_or_create_by(email: ud["user"]["email"]),
+					"groups" => ud["groups"].map { |name| Group.find_or_create_by(name: name) },
+				}
 
 				rescue JWT::VerificationError => e
 					render body: nil, status: :unauthorized
@@ -37,7 +40,10 @@ private
 		    		render body: nil, status: :unauthorized
 	      	end
 		else
-			session["user"] = { "user" => {"email" => "guest"}, "groups" => ["world"] }
+			session["user"] = {
+				"user" => User.find_or_create_by(email: "guest"),
+				"groups" => [ Group.find_or_create_by(name: "world") ],
+			}
 		end
 	end
 end

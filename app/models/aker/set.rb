@@ -13,16 +13,16 @@ class Aker::Set < ApplicationRecord
     params.delete(:user)
     super(params)
 
-    set_permission(user_data['user']['email'])
+    set_permission(user_data['user'])
   end
 
   def validate_locked
     errors.add(:base, "Set is locked") unless changes.empty?
   end
 
-  def clone(newname, owner_email)
+  def clone(newname, owner)
     copy = Aker::Set.create(name: newname, locked: false)
-    copy.set_permission(owner_email)
+    copy.set_permission(owner)
     copy.materials += materials
     copy
   end

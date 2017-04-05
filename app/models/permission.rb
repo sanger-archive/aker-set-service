@@ -1,22 +1,15 @@
 class Permission < ApplicationRecord
   belongs_to :accessible, polymorphic: true
-  belongs_to :user
+  belongs_to :permittable, polymorphic: true
 
   PERMISSIONS = [:r, :w, :x]
 
   def permissions=(permissions)
-    permissions = [*permissions].map { |p| p.to_sym }
-    self.permissions_mask = (permissions & PERMISSIONS).map { |r| Permission.permission_bit(r) }.inject(0, :+)
-  end
-
-  def self.permission_bit(permission)
-    return 1<<PERMISSIONS.index(permission)
+    PERMISSIONS.each { |p| self.send(p.to_s+'=', permissions.include?(p)) }
   end
 
   def permissions
-    PERMISSIONS.reject do |r|
-      ((permissions_mask.to_i || 0) & Permission.permission_bit(r)).zero?
-    end
+    PERMISSIONS.select { |p| self.send(p) }
   end
 
   def has_permission?(permission)
