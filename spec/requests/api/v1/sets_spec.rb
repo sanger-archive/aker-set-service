@@ -2,6 +2,18 @@ require 'rails_helper'
 
 RSpec.describe 'Api::V1::Sets', type: :request do
 
+  let(:email) { "user@here.com" }
+
+  let(:jwt) { JWT.encode({ data: { 'user': { 'email' => email}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
+
+  let(:headers) do
+    {
+      "Content-Type" => "application/vnd.api+json",
+      "Accept" => "application/vnd.api+json",
+      "HTTP_X_AUTHORISATION" => jwt,
+    }
+  end
+
   describe 'Collection' do
 
     describe 'GET' do
@@ -9,10 +21,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
       before(:each) do
         aker_set = create_list(:aker_set, 3)
 
-        get api_v1_sets_path, headers: {
-          "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
-        }
+        get api_v1_sets_path, headers: headers
       end
 
       it 'returns a 200' do
@@ -37,10 +46,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
           }
         }.to_json
 
-        post api_v1_sets_path, params: body, headers: {
-          "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
-        }
+        post api_v1_sets_path, params: body, headers: headers
       end
 
       it 'should return a 201' do
@@ -53,6 +59,11 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
       it 'conforms to the Set schema' do
         expect(response).to match_api_schema('sets')
+      end
+
+      it 'has an owner' do
+        body = JSON.parse(response.body, symbolize_names: true)
+        expect(body[:data][:attributes][:owner][:email]).to eq email
       end
 
     end
@@ -106,10 +117,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
           }
         }.to_json
 
-        patch api_v1_set_path(aker_set), params: body, headers: {
-          "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
-        }
+        patch api_v1_set_path(aker_set), params: body, headers: headers
       end
 
       it 'returns a 200' do
@@ -135,10 +143,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
       before(:each) do
         aker_set = create(:aker_set)
 
-        delete api_v1_set_path(aker_set), headers: {
-          "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
-        }
+        delete api_v1_set_path(aker_set), headers: headers
       end
 
       it 'returns a 204' do
@@ -191,10 +196,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
           data: materials.map { |material| { id: material.id, type: "materials" } }
         }.to_json
 
-        patch api_v1_set_relationships_materials_path(@set_with_materials), params: body, headers: {
-          "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
-        }
+        patch api_v1_set_relationships_materials_path(@set_with_materials), params: body, headers: headers
       end
 
       context 'when uuids exist in Materials service' do
@@ -235,10 +237,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
           data: materials.map { |material| { id: material.id, type: "materials" } }
         }.to_json
 
-        post api_v1_set_relationships_materials_path(@set_with_materials), params: body, headers: {
-          "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
-        }
+        post api_v1_set_relationships_materials_path(@set_with_materials), params: body, headers: headers
       end
 
       context 'when uuids exist in Materials service' do
@@ -278,10 +277,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
           data: [{ id: @set_with_materials.materials.first.id, type: "materials" }]
         }.to_json
 
-        delete api_v1_set_relationships_materials_path(@set_with_materials), params: body, headers: {
-          "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
-        }
+        delete api_v1_set_relationships_materials_path(@set_with_materials), params: body, headers: headers
       end
 
       it 'returns a 204' do
@@ -294,6 +290,88 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
     end
 
+  end
+
+  describe 'JWT' do
+
+    describe 'GET with correct secret_key' do
+
+      before(:each) do
+        aker_set = create(:set_with_materials)
+        payload = { data: {} }
+        token = JWT.encode payload, Rails.configuration.jwt_secret_key, 'HS256'
+
+        get api_v1_set_path(aker_set), headers: headers
+
+      end
+
+      it 'returns a 200' do
+        expect(response).to have_http_status(:ok)
+      end
+
+    end
+
+    describe 'GET with bad_key' do
+
+      before(:each) do
+        aker_set = create(:set_with_materials)
+        payload = { data: {} }
+        token = JWT.encode payload, 'x', 'HS256'
+
+        get api_v1_set_path(aker_set), headers: {
+          "Content-Type": "application/vnd.api+json",
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION": token
+        }
+
+      end
+
+      it 'returns a 401' do
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+    end
+
+  end
+
+  describe 'filtering' do
+    context 'When filtering owner email' do
+      let!(:jeff) { create(:user, email: "jeff@here.com" ) }
+      let!(:dirk) { create(:user, email: "dirk@here.com" ) }
+
+      let!(:sets) do
+        [
+          create(:aker_set, owner: jeff),
+          create(:aker_set, owner: dirk),
+          create(:aker_set, owner: jeff),
+        ]
+      end
+
+      context 'When a known owner is specified' do
+
+        it 'returns the sets with the given owner' do
+          get api_v1_sets_path, params: { "filter[owner]" => jeff.email }, headers: {
+            "Content-Type": "application/vnd.api+json",
+            "Accept": "application/vnd.api+json",
+          }
+          @body = JSON.parse(response.body, symbolize_names: true)
+          expect(@body[:data].length).to eq 2
+        end
+
+      end
+
+      context 'When an unknown owner is specified' do
+
+        it 'returns no sets' do
+          get api_v1_sets_path, params: { "filter[owner]" => 'bananas' }, headers: {
+            "Content-Type": "application/vnd.api+json",
+            "Accept": "application/vnd.api+json",
+          }
+          @body = JSON.parse(response.body, symbolize_names: true)
+          expect(@body[:data].length).to eq 0
+        end
+      end
+    end
   end
 
 end

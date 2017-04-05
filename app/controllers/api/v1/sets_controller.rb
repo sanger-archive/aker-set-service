@@ -4,11 +4,16 @@ end
 module Api
   module V1
 
-    class SetsController < JSONAPI::ResourceController
+    class SetsController < ApplicationController
+
+      skip_authorization_check only: [:create, :index]
 
       before_action :validate_uuids, only: [:update_relationship, :create_relationship]
       before_action :create_uuids, only: [:update_relationship, :create_relationship]
       before_action :check_lock, only: [:update, :destroy]
+
+      before_action :authorise_read, only: [:show_relationship, :clone, :show]
+      before_action :authorise_write, only: [:create_relationship, :update_relationship, :destroy_relationship, :update, :destroy]
 
       # This is the only way I found to prevent deleting materials from a set via 'patch'
       def check_lock
@@ -31,7 +36,7 @@ module Api
       def clone
         cloneparams = clone_params
         set = Aker::Set.find(cloneparams[:set_id])
-        copy = set.clone(cloneparams[:name])
+        copy = set.clone(cloneparams[:name], session['user']['user'])
         unless copy.save
           return render json: { errors: [{ status: '422', title: 'Unprocessable entity', detail: 'The clone could not be created'}]}, status: :unprocessable_entity
         end
@@ -40,6 +45,10 @@ module Api
       end
 
     private
+
+      def aker_set
+        @aker_set ||= Aker::Set.find(params[:set_id] || params[:id])
+      end
 
       def clone_params
         {
@@ -50,6 +59,14 @@ module Api
 
       def param_uuids
         params.require(:data).pluck(:id)
+      end
+
+      def authorise_read
+        authorize! :read, aker_set
+      end
+
+      def authorise_write
+        authorize! :write, aker_set
       end
 
     end

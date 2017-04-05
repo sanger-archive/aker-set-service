@@ -47,6 +47,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     builder (3.2.2)
     byebug (9.0.6)
+    cancancan (1.16.0)
     codeclimate-engine-rb (0.4.0)
       virtus (~> 1.0)
     coercible (1.0.0)
@@ -88,6 +89,7 @@ GEM
     jsonapi-resources (0.8.1)
       concurrent-ruby
       rails (>= 4.0)
+    jwt (1.5.6)
     launchy (2.4.3)
       addressable (~> 2.3)
     listen (3.0.8)
@@ -234,11 +236,13 @@ PLATFORMS
 
 DEPENDENCIES
   byebug
+  cancancan
   database_cleaner
   factory_girl_rails
   faraday
   json-schema
   jsonapi-resources
+  jwt
   listen (~> 3.0.5)
   pg (~> 0.18)
   puma (~> 3.0)
@@ -256,4 +260,4 @@ DEPENDENCIES
   zipkin-tracer
 
 BUNDLED WITH
-   1.13.7
+   1.14.5
