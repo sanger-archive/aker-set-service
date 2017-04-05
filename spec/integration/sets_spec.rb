@@ -2,6 +2,8 @@ require 'swagger_helper'
 
 describe 'Sets API' do
 
+  let(:jwt) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
+
   path '/api/v1/sets' do
 
     get 'Fetches Sets' do
@@ -88,7 +90,7 @@ describe 'Sets API' do
       parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string
       
       response '200', 'set found' do
-        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
+        let(:HTTP_X_AUTHORISATION) { jwt }
         schema type: :object, properties: {
           data: {
             type: :object,
@@ -143,7 +145,7 @@ describe 'Sets API' do
       }
 
       response '200', 'set updated' do
-        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
+        let(:HTTP_X_AUTHORISATION) { jwt }
 
         schema type: :object, properties: {
           data: {
@@ -195,7 +197,7 @@ describe 'Sets API' do
       parameter name: :uuid, in: :path, type: :uuid
 
       response '204', 'set deleted' do
-        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
+        let(:HTTP_X_AUTHORISATION) { jwt }
         let(:uuid) do
           s = create(:aker_set)
           s.set_permission(create(:user))
@@ -216,7 +218,7 @@ describe 'Sets API' do
       parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string  
 
       response '200', 'materials found' do
-        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
+        let(:HTTP_X_AUTHORISATION) { jwt }
         schema type: :object, properties: {
           data: {
             type: :array,
@@ -275,7 +277,7 @@ describe 'Sets API' do
       }
 
       response '204', 'materials replaced' do
-        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
+        let(:HTTP_X_AUTHORISATION) { jwt }
 
         let(:uuid) do
           s = create(:aker_set)
@@ -320,7 +322,7 @@ describe 'Sets API' do
       }
 
       response '204', 'materials added' do
-        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
+        let(:HTTP_X_AUTHORISATION) { jwt }
 
         let(:uuid) do
           s = create(:aker_set)
@@ -364,7 +366,7 @@ describe 'Sets API' do
       }
 
       response '204', 'materials deleted' do
-        let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
+        let(:HTTP_X_AUTHORISATION) { jwt }
 
         let(:set_with_materials) do
           s = create(:set_with_materials)
