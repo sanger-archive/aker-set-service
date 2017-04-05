@@ -8,6 +8,8 @@ class Aker::Set < ApplicationRecord
 
   validate :validate_locked, if: :locked_was
 
+  belongs_to :owner, class_name: :User
+
   def validate_locked
     errors.add(:base, "Set is locked") unless changes.empty?
   end

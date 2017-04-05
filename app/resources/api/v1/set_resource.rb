@@ -6,7 +6,10 @@ module Api
       has_many :materials, class_name: 'Material', relation_name: :materials, acts_as_set: true
 
       after_create do
-        @model.set_permission(context[:current_user]['user'])
+        user = context[:current_user]['user']
+        @model.set_permission(user)
+        @model.owner = user
+        @model.save!
       end
 
       def meta(options)
