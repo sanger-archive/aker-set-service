@@ -8,8 +8,6 @@ module Api
 
       skip_authorization_check only: [:create, :index]
 
-      before_action :pass_session_user, only: [:create]
-
       before_action :validate_uuids, only: [:update_relationship, :create_relationship]
       before_action :create_uuids, only: [:update_relationship, :create_relationship]
       before_action :check_lock, only: [:update, :destroy]
@@ -69,10 +67,6 @@ module Api
 
       def authorise_write
         authorize! :write, aker_set
-      end
-
-      def pass_session_user
-        params[:user] = session['user']
       end
 
     end

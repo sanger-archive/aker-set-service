@@ -8,14 +8,6 @@ class Aker::Set < ApplicationRecord
 
   validate :validate_locked, if: :locked_was
 
-  def create(params)
-    user_data = params[:user]
-    params.delete(:user)
-    super(params)
-
-    set_permission(user_data['user'])
-  end
-
   def validate_locked
     errors.add(:base, "Set is locked") unless changes.empty?
   end

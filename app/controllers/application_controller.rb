@@ -22,6 +22,10 @@ private
         session['user']
     end
 
+    def context
+        {current_user: current_user}
+    end
+
 	def check_credentials
 		if request.headers.to_h['HTTP_X_AUTHORISATION']
 			begin
