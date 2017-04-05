@@ -277,11 +277,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
           data: [{ id: @set_with_materials.materials.first.id, type: "materials" }]
         }.to_json
 
-        delete api_v1_set_relationships_materials_path(@set_with_materials), params: body, headers: {
-          "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json",
-          "HTTP_X_AUTHORISATION": JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256')
-        }
+        delete api_v1_set_relationships_materials_path(@set_with_materials), params: body, headers: headers
       end
 
       it 'returns a 204' do
@@ -305,11 +301,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
         payload = { data: {} }
         token = JWT.encode payload, Rails.configuration.jwt_secret_key, 'HS256'
 
-        get api_v1_set_path(aker_set), headers: {
-          "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json",
-          "HTTP_X_AUTHORISATION": JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256')
-        }
+        get api_v1_set_path(aker_set), headers: headers
 
       end
 
