@@ -12,10 +12,23 @@ module Api
         records.where(owner: user)
       }
 
+      before_create do
+        user = context[:current_user]['user']
+        owner_email = context[:owner]
+
+        if owner_email.nil?
+          @model.owner = user
+        else
+          @model.owner = User.find_or_create_by(email: owner_email)
+        end
+      end
+
       after_create do
         user = context[:current_user]['user']
-        @model.set_permission(user)
-        @model.owner = user
+
+        @model.set_permission(@model.owner)
+        @model.set_permission(user) if @model.owner != user
+
         @model.save!
       end
 
