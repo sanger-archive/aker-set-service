@@ -47,7 +47,7 @@ ActiveRecord::Schema.define(version: 20170405102344) do
 
   create_table "permissions", force: :cascade do |t|
     t.string   "accessible_type"
-    t.integer  "accessible_id"
+    t.uuid     "accessible_id"
     t.string   "permittable_type"
     t.integer  "permittable_id"
     t.boolean  "r",                default: false

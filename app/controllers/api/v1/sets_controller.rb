@@ -6,6 +6,8 @@ module Api
 
     class SetsController < ApplicationController
 
+      attr_accessor :owner
+
       skip_authorization_check only: [:create, :index]
 
       before_action :validate_uuids, only: [:update_relationship, :create_relationship]
@@ -14,6 +16,12 @@ module Api
 
       before_action :authorise_read, only: [:show_relationship, :clone, :show]
       before_action :authorise_write, only: [:create_relationship, :update_relationship, :destroy_relationship, :update, :destroy]
+      before_action :set_owner, only: :create
+
+      def set_owner
+        self.owner = params.fetch(:data).dig("attributes", "owner")
+        params["data"]["attributes"].delete("owner") if self.owner
+      end
 
       # This is the only way I found to prevent deleting materials from a set via 'patch'
       def check_lock
@@ -42,6 +50,10 @@ module Api
         end
         jsondata = JSONAPI::ResourceSerializer.new(Api::V1::SetResource).serialize_to_hash(Api::V1::SetResource.new(copy, nil))
         render json: jsondata, status: :created
+      end
+
+      def context
+        super.merge({owner: owner})
       end
 
     private
