@@ -68,6 +68,55 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
     end
 
+    describe 'POST with owner specified' do
+
+      let(:internal_user) { FactoryGirl.create(:user, email: 'internal@here.com') }
+
+      before(:each) do
+        body = {
+          data: {
+            type: "sets",
+            attributes: {
+              name: "My created set",
+              owner: internal_user.email,
+            }
+          }
+        }.to_json
+
+        post api_v1_sets_path, params: body, headers: headers
+      end
+
+      it 'should return a 201' do
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'should conform to the JSON API schema' do
+        expect(response).to match_api_schema(:jsonapi)
+      end
+
+      it 'conforms to the Set schema' do
+        expect(response).to match_api_schema('sets')
+      end
+
+      it 'sets the owner to the owner specified in the payload' do
+        body = JSON.parse(response.body, symbolize_names: true)
+        expect(body[:data][:attributes][:owner][:email]).to eq internal_user.email
+      end
+
+      it 'sets permissions for the set for the owner and current_user' do
+        aker_set = Aker::Set.last
+        permission = aker_set.permissions.find_by(permittable_id: internal_user.id)
+        expect(permission.has_permission?(:r))
+        expect(permission.has_permission?(:w))
+
+        current_user = User.find_by(email: "user@here.com")
+        permission = aker_set.permissions.find_by(permittable_id: current_user.id)
+        expect(permission.has_permission?(:r))
+        expect(permission.has_permission?(:w))
+      end
+
+    end
+
   end
 
   describe 'Resource' do
