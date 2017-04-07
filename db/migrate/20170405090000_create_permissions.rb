@@ -3,7 +3,8 @@ class CreatePermissions < ActiveRecord::Migration[5.0]
     create_table :permissions do |t|
       t.references :accessible, polymorphic: true
 
-      t.references :permittable, polymorphic: true
+      #t.references :permittable, polymorphic: true
+      t.string :permitted
 
       t.boolean :r, default: false
       t.boolean :w, default: false

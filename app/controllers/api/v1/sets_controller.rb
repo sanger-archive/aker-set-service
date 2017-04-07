@@ -36,7 +36,7 @@ module Api
       def clone
         cloneparams = clone_params
         set = Aker::Set.find(cloneparams[:set_id])
-        copy = set.clone(cloneparams[:name], session['user']['user'])
+        copy = set.clone(cloneparams[:name], session['user']['user']['email'])
         unless copy.save
           return render json: { errors: [{ status: '422', title: 'Unprocessable entity', detail: 'The clone could not be created'}]}, status: :unprocessable_entity
         end

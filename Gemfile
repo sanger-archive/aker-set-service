@@ -28,6 +28,8 @@ gem 'swagger-ui_rails'
 gem 'sprockets-rails'
 gem 'jwt'
 gem 'cancancan'
+gem 'aker_authorisation_gem', path: '/Users/hc6/gems/aker-authorisation-gem'
+
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

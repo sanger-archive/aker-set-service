@@ -1,3 +1,3 @@
 class User < ApplicationRecord
-  include Permittable
+  #include Permittable
 end

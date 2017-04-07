@@ -1,3 +1,4 @@
+require 'aker_authorisation_gem'
 class ApplicationController < JSONAPI::ResourceController
 
 	check_authorization
@@ -7,6 +8,7 @@ class ApplicationController < JSONAPI::ResourceController
 	rescue_from CanCan::AccessDenied do |exception|
 		respond_to do |format|
 			format.json { head :forbidden, content_type: 'text/html' }
+			format.api_json { head :forbidden, content_type: 'application/vnd.api+json' }
 	        format.html { redirect_to root_path, alert: exception.message }
 	        format.js   { head :forbidden, content_type: 'text/html' }
 		end
@@ -34,8 +36,8 @@ private
 				payload, header = JWT.decode token, secret_key, true, { algorithm: 'HS256'}
 				ud = payload["data"]
 				session["user"] = {
-					"user" => User.find_or_create_by(email: ud["user"]["email"]),
-					"groups" => ud["groups"].map { |name| Group.find_or_create_by(name: name) },
+					"user" => ud["user"], #User.find_or_create_by(email: ud["user"]["email"]),
+					"groups" => ud["groups"].join(',') #ud["groups"].map { |name| Group.find_or_create_by(name: name) },
 				}
 
 				rescue JWT::VerificationError => e
@@ -45,8 +47,8 @@ private
 	      	end
 		else
 			session["user"] = {
-				"user" => User.find_or_create_by(email: "guest"),
-				"groups" => [ Group.find_or_create_by(name: "world") ],
+				"user" => {email: "guest"},
+				"groups" => ["world"]
 			}
 		end
 	end

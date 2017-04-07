@@ -35,7 +35,7 @@ ActiveRecord::Schema.define(version: 20170405102344) do
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
     t.boolean  "locked",     default: false, null: false
-    t.integer  "owner_id"
+    t.string   "owner_id"
   end
 
   create_table "groups", force: :cascade do |t|
@@ -47,16 +47,14 @@ ActiveRecord::Schema.define(version: 20170405102344) do
 
   create_table "permissions", force: :cascade do |t|
     t.string   "accessible_type"
-    t.integer  "accessible_id"
-    t.string   "permittable_type"
-    t.integer  "permittable_id"
-    t.boolean  "r",                default: false
-    t.boolean  "w",                default: false
-    t.boolean  "x",                default: false
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
+    t.uuid     "accessible_id"
+    t.string   "permitted"
+    t.boolean  "r",               default: false
+    t.boolean  "w",               default: false
+    t.boolean  "x",               default: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
     t.index ["accessible_type", "accessible_id"], name: "index_permissions_on_accessible_type_and_accessible_id", using: :btree
-    t.index ["permittable_type", "permittable_id"], name: "index_permissions_on_permittable_type_and_permittable_id", using: :btree
   end
 
   create_table "users", force: :cascade do |t|
@@ -68,5 +66,4 @@ ActiveRecord::Schema.define(version: 20170405102344) do
 
   add_foreign_key "aker_set_materials", "aker_materials"
   add_foreign_key "aker_set_materials", "aker_sets"
-  add_foreign_key "aker_sets", "users", column: "owner_id"
 end

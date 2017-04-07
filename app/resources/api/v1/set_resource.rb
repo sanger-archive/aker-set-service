@@ -12,6 +12,17 @@ module Api
         records.where(owner: user)
       }
 
+      before_create do
+        user = context[:current_user]['user']
+        owner_email = context[:owner]
+
+        if owner_email.nil?
+          @model.owner = user.email
+        else
+          @model.owner = owner_email
+        end
+      end
+
       after_create do
         user = context[:current_user]['user']
         @model.set_permission(user)
@@ -24,7 +35,6 @@ module Api
           size: @model.materials.count
         }
       end
-
     end
   end
 end
