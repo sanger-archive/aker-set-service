@@ -1,3 +1,4 @@
+require 'pry'
 require 'aker_authorisation_gem'
 class ApplicationController < JSONAPI::ResourceController
 
@@ -13,6 +14,7 @@ class ApplicationController < JSONAPI::ResourceController
 	        format.js   { head :forbidden, content_type: 'text/html' }
 		end
 	end
+
 
 private
 
@@ -37,7 +39,7 @@ private
 				ud = payload["data"]
 				session["user"] = {
 					"user" => ud["user"], #User.find_or_create_by(email: ud["user"]["email"]),
-					"groups" => ud["groups"].join(',') #ud["groups"].map { |name| Group.find_or_create_by(name: name) },
+					"groups" => ["world"]#ud["groups"].join(',') #ud["groups"].map { |name| Group.find_or_create_by(name: name) },
 				}
 
 				rescue JWT::VerificationError => e

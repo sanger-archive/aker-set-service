@@ -107,7 +107,7 @@ describe 'Sets API' do
 
         let(:uuid) do
           s = create(:aker_set)
-          s.set_permission(create(:user))
+          s.set_permission(create(:user).email)
           s.id
         end
 
@@ -163,7 +163,7 @@ describe 'Sets API' do
 
         let(:uuid) do
           s = create(:aker_set)
-          s.set_permission(create(:user))
+          s.set_permission(create(:user).email)
           s.id
         end
 
@@ -198,7 +198,7 @@ describe 'Sets API' do
         let(:HTTP_X_AUTHORISATION) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
         let(:uuid) do
           s = create(:aker_set)
-          s.set_permission(create(:user))
+          s.set_permission(create(:user).email)
           s.id
         end
         run_test!
@@ -232,7 +232,7 @@ describe 'Sets API' do
 
         let(:uuid) do
           s = create(:set_with_materials)
-          s.set_permission(create(:user))
+          s.set_permission(create(:user).email)
           s.id
         end
 
@@ -279,7 +279,7 @@ describe 'Sets API' do
 
         let(:uuid) do
           s = create(:aker_set)
-          s.set_permission(create(:user))
+          s.set_permission(create(:user).email)
           s.id
         end
  
@@ -324,7 +324,7 @@ describe 'Sets API' do
 
         let(:uuid) do
           s = create(:aker_set)
-          s.set_permission(create(:user))
+          s.set_permission(create(:user).email)
           s.id
         end
         let(:materials) do
@@ -368,7 +368,7 @@ describe 'Sets API' do
 
         let(:set_with_materials) do
           s = create(:set_with_materials)
-          s.set_permission(create(:user))
+          s.set_permission(create(:user).email)
           s
         end
 

@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'pry'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.0.0', '>= 5.0.0.1'
@@ -28,7 +29,7 @@ gem 'swagger-ui_rails'
 gem 'sprockets-rails'
 gem 'jwt'
 gem 'cancancan'
-gem 'aker_authorisation_gem', path: '/Users/hc6/gems/aker-authorisation-gem'
+gem 'aker_authorisation_gem', path: '/Users/emr/projects/aker_authorisation_gem'
 
 
 group :development, :test do

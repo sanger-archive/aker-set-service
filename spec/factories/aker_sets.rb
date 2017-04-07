@@ -3,7 +3,7 @@ FactoryGirl.define do
     sequence(:name) { |n| "Set #{n}" }
 
     after(:create) do |set, evaluator|
-      set.set_permission(create(:user))
+      set.set_permission(create(:user).email)
     end
 
     factory :set_with_materials do
