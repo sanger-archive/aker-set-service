@@ -6,6 +6,7 @@ class CreatePermissions < ActiveRecord::Migration[5.0]
       t.boolean :w, null: false, default: false
       t.boolean :x, null: false, default: false
       t.references :accessible, null: false, polymorphic:true, type: accessible_id_type, index: true
+      t.timestamps
     end
     add_index :permissions, :permitted
   end
