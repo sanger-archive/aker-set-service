@@ -13,7 +13,7 @@ module Api
       }
 
       before_create do
-        user = context[:current_user]['user']
+        user = context[:current_user]
         owner_email = context[:owner]
 
         if owner_email.nil?
@@ -28,11 +28,10 @@ module Api
       end
 
       after_create do
-        user = context[:current_user]['user']
-        owner_email |= user['email']
+        user = context[:current_user]
+        owner_email = @model.owner_id
         @model.set_default_permission(user['email'])
-        @model.set_default_permission(owner_email) if owner_email != user['email']
-        @model.owner_id = owner_email
+        @model.permissions.create([{permitted: owner_email, r: true, w: true}]) if owner_email != user['email']
         @model.save!
       end
 
