@@ -29,7 +29,7 @@ module Api
 
       after_create do
         user = context[:current_user]['user']
-        @model.set_permission(user['email'])
+        @model.set_default_permission(user['email'])
         @model.owner_id = user['email']
         @model.save!
       end

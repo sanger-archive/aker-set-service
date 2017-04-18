@@ -27,6 +27,8 @@ module SetService
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    config.accessible_id_type = 'uuid'
+
     config.generators do |g|
       g.test_framework :rspec,
         fixtures: true,

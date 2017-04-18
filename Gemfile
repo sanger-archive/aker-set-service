@@ -27,9 +27,11 @@ gem 'zipkin-tracer'
 gem 'rswag'
 gem 'swagger-ui_rails'
 gem 'sprockets-rails'
-gem 'jwt'
-gem 'cancancan'
-gem 'aker_authorisation_gem', path: '/Users/emr/projects/aker_authorisation_gem'
+#gem 'jwt'
+#gem 'cancancan'
+gem 'aker_credentials_gem', path: '/Users/emr/projects/aker_credentials_gem'
+gem 'aker_permission_gem', path: '/Users/emr/projects/aker_permission_gem'
+
 
 
 group :development, :test do

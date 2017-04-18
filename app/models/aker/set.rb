@@ -1,5 +1,5 @@
 class Aker::Set < ApplicationRecord
-  include AkerAuthorisationGem::Accessible
+  include AkerPermissionGem::Accessible
 
   has_many :set_materials, foreign_key: :aker_set_id, dependent: :destroy
   has_many :materials, through: :set_materials, source: :aker_material
@@ -14,7 +14,7 @@ class Aker::Set < ApplicationRecord
 
   def clone(newname, owner_email)
     copy = Aker::Set.create(name: newname, locked: false)
-    copy.set_permission(owner_email)
+    copy.set_default_permission(owner_email)
     copy.materials += materials
     copy
   end

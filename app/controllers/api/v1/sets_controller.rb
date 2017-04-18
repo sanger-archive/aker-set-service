@@ -6,7 +6,7 @@ module Api
 
     class SetsController < ApplicationController
 
-      skip_authorization_check only: [:create, :index]
+      skip_authorization_check only: [:create, :index, :show]
 
       before_action :validate_uuids, only: [:update_relationship, :create_relationship]
       before_action :create_uuids, only: [:update_relationship, :create_relationship]
