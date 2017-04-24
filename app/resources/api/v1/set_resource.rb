@@ -5,8 +5,8 @@ module Api
       attributes :name, :owner_id, :created_at, :locked
       has_many :materials, class_name: 'Material', relation_name: :materials, acts_as_set: true
 
-      # http://localhost:3000/api/v1/sets?filter[owner]=guest
-      filter :owner, apply: -> (records, value, _options) {
+      # http://localhost:3000/api/v1/sets?filter[owner_id]=guest
+      filter :owner_id, apply: -> (records, value, _options) {
         return records.none if value.nil?
         records.where(owner_id: value)
       }
