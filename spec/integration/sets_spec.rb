@@ -1,8 +1,9 @@
+require 'JWT'
 require 'swagger_helper'
 
 describe 'Sets API' do
 
-  let(:jwt) { JWT.encode({ data: { 'user': { 'email' => 'user@here.com'}, 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
+  let(:jwt) { JWT.encode({ data: { 'email' => 'user@here.com', 'groups' => ['world'] } }, Rails.configuration.jwt_secret_key, 'HS256') }
 
   path '/api/v1/sets' do
 
@@ -80,7 +81,7 @@ describe 'Sets API' do
   end
 
   path '/api/v1/sets/{uuid}' do
- 
+
     get 'Retrieves a set' do
       tags 'Sets'
       consumes 'application/vnd.api+json'
@@ -88,7 +89,7 @@ describe 'Sets API' do
 
       parameter name: :uuid, in: :path, type: :uuid
       parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string
-      
+
       response '200', 'set found' do
         let(:HTTP_X_AUTHORISATION) { jwt }
         schema type: :object, properties: {
@@ -108,9 +109,7 @@ describe 'Sets API' do
         }
 
         let(:uuid) do
-          s = create(:aker_set)
-          s.set_permission(create(:user).email)
-          s.id
+          create(:aker_set).id
         end
 
         run_test!
@@ -122,7 +121,7 @@ describe 'Sets API' do
       consumes 'application/vnd.api+json'
       produces 'application/vnd.api+json'
 
-      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string  
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string
       parameter name: :uuid, in: :path, type: :uuid
 
       parameter name: :set, in: :body, schema: {
@@ -164,9 +163,7 @@ describe 'Sets API' do
         }
 
         let(:uuid) do
-          s = create(:aker_set)
-          s.set_permission(create(:user).email)
-          s.id
+          create(:aker_set).id
         end
 
         let(:set) do
@@ -193,15 +190,13 @@ describe 'Sets API' do
       consumes 'application/vnd.api+json'
       produces 'application/vnd.api+json'
 
-      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string  
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string
       parameter name: :uuid, in: :path, type: :uuid
 
       response '204', 'set deleted' do
         let(:HTTP_X_AUTHORISATION) { jwt }
         let(:uuid) do
-          s = create(:aker_set)
-          s.set_permission(create(:user).email)
-          s.id
+          create(:aker_set).id
         end
         run_test!
       end
@@ -215,7 +210,7 @@ describe 'Sets API' do
       consumes 'application/vnd.api+json'
       produces 'application/vnd.api+json'
       parameter name: :uuid, in: :path, type: :uuid
-      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string  
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string
 
       response '200', 'materials found' do
         let(:HTTP_X_AUTHORISATION) { jwt }
@@ -233,9 +228,7 @@ describe 'Sets API' do
         }
 
         let(:uuid) do
-          s = create(:set_with_materials)
-          s.set_permission(create(:user).email)
-          s.id
+          create(:set_with_materials).id
         end
 
         run_test!
@@ -280,11 +273,9 @@ describe 'Sets API' do
         let(:HTTP_X_AUTHORISATION) { jwt }
 
         let(:uuid) do
-          s = create(:aker_set)
-          s.set_permission(create(:user).email)
-          s.id
+          create(:aker_set).id
         end
- 
+
         let(:materials) do
           {
             data: create_list(:aker_material, 3).map { |material| { id: material.id, type: "materials" } }
@@ -303,7 +294,7 @@ describe 'Sets API' do
       produces 'application/vnd.api+json'
 
       parameter name: :uuid, in: :path, type: :uuid
-      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string  
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string
 
       parameter name: :materials, in: :body, schema: {
         type: :object,
@@ -325,9 +316,7 @@ describe 'Sets API' do
         let(:HTTP_X_AUTHORISATION) { jwt }
 
         let(:uuid) do
-          s = create(:aker_set)
-          s.set_permission(create(:user).email)
-          s.id
+          create(:aker_set).id
         end
         let(:materials) do
           {
@@ -347,7 +336,7 @@ describe 'Sets API' do
       produces 'application/vnd.api+json'
 
       parameter name: :uuid, in: :path, type: :uuid
-      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string  
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string
 
       parameter name: :materials, in: :body, schema: {
         type: :object,
@@ -369,9 +358,7 @@ describe 'Sets API' do
         let(:HTTP_X_AUTHORISATION) { jwt }
 
         let(:set_with_materials) do
-          s = create(:set_with_materials)
-          s.set_permission(create(:user).email)
-          s
+          create(:set_with_materials)
         end
 
         let(:uuid) { set_with_materials.id }

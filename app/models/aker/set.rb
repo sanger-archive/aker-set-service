@@ -19,7 +19,4 @@ class Aker::Set < ApplicationRecord
     copy
   end
 
-  def owner=(owner)
-    owner_id=owner
-  end
 end

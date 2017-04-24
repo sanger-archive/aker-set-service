@@ -27,12 +27,9 @@ gem 'zipkin-tracer'
 gem 'rswag'
 gem 'swagger-ui_rails'
 gem 'sprockets-rails'
-#gem 'jwt'
-#gem 'cancancan'
-gem 'aker_credentials_gem', path: '/Users/emr/projects/aker_credentials_gem'
-gem 'aker_permission_gem', path: '/Users/emr/projects/aker_permission_gem'
 
-
+gem 'aker_credentials_gem', github: 'sanger/aker-credentials'
+gem 'aker_permission_gem', github: 'sanger/aker-permission'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

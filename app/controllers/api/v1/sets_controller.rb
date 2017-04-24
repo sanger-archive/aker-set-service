@@ -6,7 +6,7 @@ module Api
 
     class SetsController < ApplicationController
 
-      attr_accessor :owner
+      attr_accessor :owner_id
       skip_authorization_check only: [:create, :index, :show]
 
       before_action :validate_uuids, only: [:update_relationship, :create_relationship]
@@ -18,8 +18,8 @@ module Api
       before_action :set_owner, only: :create
 
       def set_owner
-        self.owner = params.fetch(:data).dig("attributes", "owner")
-        params["data"]["attributes"].delete("owner") if self.owner
+        self.owner_id = params.fetch(:data).dig("attributes", "owner_id")
+        params["data"]["attributes"].delete("owner_id") if self.owner_id
       end
 
       # This is the only way I found to prevent deleting materials from a set via 'patch'
@@ -52,7 +52,7 @@ module Api
       end
 
       def context
-        super.merge({owner: owner})
+        super.merge({owner_id: owner_id})
       end
 
     private

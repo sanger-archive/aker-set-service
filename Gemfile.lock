@@ -1,12 +1,14 @@
-PATH
-  remote: /Users/emr/projects/aker_credentials_gem
+GIT
+  remote: git://github.com/sanger/aker-credentials.git
+  revision: ab120405c8a55506ff400921ab6cbd4472c8c6bc
   specs:
     aker_credentials_gem (0.1.0)
       jwt
       request_store
 
-PATH
-  remote: /Users/emr/projects/aker_permission_gem
+GIT
+  remote: git://github.com/sanger/aker-permission.git
+  revision: 5723071971a0b4319302ea8f8733cbcbde1a7fb6
   specs:
     aker_permission_gem (0.1.1)
       cancancan
