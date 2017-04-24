@@ -398,7 +398,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
       context 'When a known owner is specified' do
 
         it 'returns the sets with the given owner' do
-          get api_v1_sets_path, params: { "filter[owner]" => jeff }, headers: {
+          get api_v1_sets_path, params: { "filter[owner_id]" => jeff }, headers: {
             "Content-Type": "application/vnd.api+json",
             "Accept": "application/vnd.api+json",
           }
@@ -411,7 +411,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
       context 'When an unknown owner is specified' do
 
         it 'returns no sets' do
-          get api_v1_sets_path, params: { "filter[owner]" => 'bananas' }, headers: {
+          get api_v1_sets_path, params: { "filter[owner_id]" => 'bananas' }, headers: {
             "Content-Type": "application/vnd.api+json",
             "Accept": "application/vnd.api+json",
           }
