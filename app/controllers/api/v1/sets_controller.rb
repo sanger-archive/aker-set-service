@@ -6,9 +6,8 @@ module Api
 
     class SetsController < ApplicationController
 
-      attr_accessor :owner
-
-      skip_authorization_check only: [:create, :index]
+      attr_accessor :owner_id
+      skip_authorization_check only: [:create, :index, :show]
 
       before_action :validate_uuids, only: [:update_relationship, :create_relationship]
       before_action :create_uuids, only: [:update_relationship, :create_relationship]
@@ -19,8 +18,8 @@ module Api
       before_action :set_owner, only: :create
 
       def set_owner
-        self.owner = params.fetch(:data).dig("attributes", "owner")
-        params["data"]["attributes"].delete("owner") if self.owner
+        self.owner_id = params.fetch(:data).dig("attributes", "owner_id")
+        params["data"]["attributes"].delete("owner_id") if self.owner_id
       end
 
       # This is the only way I found to prevent deleting materials from a set via 'patch'
@@ -44,7 +43,7 @@ module Api
       def clone
         cloneparams = clone_params
         set = Aker::Set.find(cloneparams[:set_id])
-        copy = set.clone(cloneparams[:name], session['user']['user'])
+        copy = set.clone(cloneparams[:name], session['user']['user']['email'])
         unless copy.save
           return render json: { errors: [{ status: '422', title: 'Unprocessable entity', detail: 'The clone could not be created'}]}, status: :unprocessable_entity
         end
@@ -53,7 +52,7 @@ module Api
       end
 
       def context
-        super.merge({owner: owner})
+        super.merge({owner_id: owner_id})
       end
 
     private

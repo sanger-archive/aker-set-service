@@ -1,5 +1,5 @@
 class Aker::Set < ApplicationRecord
-  include Accessible
+  include AkerPermissionGem::Accessible
 
   has_many :set_materials, foreign_key: :aker_set_id, dependent: :destroy
   has_many :materials, through: :set_materials, source: :aker_material
@@ -8,16 +8,15 @@ class Aker::Set < ApplicationRecord
 
   validate :validate_locked, if: :locked_was
 
-  belongs_to :owner, class_name: :User
-
   def validate_locked
     errors.add(:base, "Set is locked") unless changes.empty?
   end
 
-  def clone(newname, owner)
+  def clone(newname, owner_email)
     copy = Aker::Set.create(name: newname, locked: false)
-    copy.set_permission(owner)
+    copy.set_default_permission(owner_email)
     copy.materials += materials
     copy
   end
+
 end

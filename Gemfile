@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'pry'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.0.0', '>= 5.0.0.1'
@@ -26,8 +27,9 @@ gem 'zipkin-tracer'
 gem 'rswag'
 gem 'swagger-ui_rails'
 gem 'sprockets-rails'
-gem 'jwt'
-gem 'cancancan'
+
+gem 'aker_credentials_gem', github: 'sanger/aker-credentials'
+gem 'aker_permission_gem', github: 'sanger/aker-permission'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
