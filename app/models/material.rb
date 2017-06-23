@@ -3,6 +3,10 @@ class Material
   def self.site
     Faraday.new(url: Rails.configuration.materials_service_url) do |faraday|
       faraday.use ZipkinTracer::FaradayHandler, 'eve'
+      ENV['HTTP_PROXY'] = nil
+      ENV['http_proxy'] = nil
+      ENV['https_proxy'] = nil
+      faraday.proxy ''
       faraday.request :url_encoded
       faraday.adapter Faraday.default_adapter
     end
