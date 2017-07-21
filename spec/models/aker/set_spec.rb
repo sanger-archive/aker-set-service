@@ -50,7 +50,8 @@ RSpec.describe Aker::Set, type: :model do
     expect(ability.can?(:read, set)).to eq true
     expect(ability.can?(:write, set)).to eq false
 
-    set.permissions.create(permitted: 'dirk@here.com', permissions: [:r, :w])
+    set.permissions.create(permitted: 'dirk@here.com', permission_type: "read")
+    set.permissions.create(permitted: 'dirk@here.com', permission_type: "write")
     expect(ability.can?(:read, set)).to eq true
     expect(ability.can?(:write, set)).to eq true
   end

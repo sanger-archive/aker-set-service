@@ -11,5 +11,7 @@ sets = Aker::Set.create([
 ])
 
 sets.each do |s|
-  s.permissions.create([{ permitted: 'world', r: true, w: true, x: false }])
+  ['read', 'write'].each do |type|
+    s.permissions.create([{ permitted: 'world', permission_type: type}])
+  end
 end
