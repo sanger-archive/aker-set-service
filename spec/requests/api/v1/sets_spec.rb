@@ -155,11 +155,11 @@ RSpec.describe 'Api::V1::Sets', type: :request do
     describe 'PATCH' do
 
       before(:each) do
-        aker_set = create(:aker_set)
+        @aker_set = create(:aker_set)
 
-        body = {
+        @body = {
           data: {
-            id: aker_set.id,
+            id: @aker_set.id,
             type: "sets",
             attributes: {
               name: "Changed name"
@@ -167,22 +167,38 @@ RSpec.describe 'Api::V1::Sets', type: :request do
           }
         }.to_json
 
-        patch api_v1_set_path(aker_set), params: body, headers: headers
       end
 
-      it 'returns a 200' do
+      it 'returns a 200 if you are the owner' do
+        patch api_v1_set_path(@aker_set), params: @body, headers: headers
+
         expect(response).to have_http_status(:ok)
       end
 
+      it 'returns a 403 if you are not the owner' do
+        @aker_set.owner_id = 'someone@here.com'
+        @aker_set.save
+
+        patch api_v1_set_path(@aker_set), params: @body, headers: headers
+
+        expect(response).to have_http_status(:forbidden)
+      end
+
       it 'conforms to the JSON API schema' do
+        patch api_v1_set_path(@aker_set), params: @body, headers: headers
+
         expect(response).to match_api_schema('jsonapi')
       end
 
       it 'conforms to the Set schema' do
+        patch api_v1_set_path(@aker_set), params: @body, headers: headers
+
         expect(response).to match_api_schema('sets')
       end
 
       it 'modifies the resource' do
+        patch api_v1_set_path(@aker_set), params: @body, headers: headers
+
         expect(JSON.parse(response.body)['data']['attributes']['name']).to eq('Changed name')
       end
 
@@ -191,18 +207,29 @@ RSpec.describe 'Api::V1::Sets', type: :request do
     describe 'DELETE' do
 
       before(:each) do
-        aker_set = create(:aker_set)
-
-        delete api_v1_set_path(aker_set), headers: headers
+        @aker_set = create(:aker_set)
       end
 
       it 'returns a 204' do
+        delete api_v1_set_path(@aker_set), headers: headers
+
         expect(response).to have_http_status(:no_content)
       end
 
       it 'has an empty response' do
+        delete api_v1_set_path(@aker_set), headers: headers
+
         expect(response.body).to be_empty
       end
+
+      it 'returns a 403 if you are not the owner' do
+        @aker_set.owner_id = 'someone@here.com'
+        @aker_set.save
+
+        delete api_v1_set_path(@aker_set), headers: headers
+
+        expect(response).to have_http_status(:forbidden)
+      end      
 
     end
 
