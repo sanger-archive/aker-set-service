@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'jwt'
 
 RSpec.describe 'Api::V1::Sets', type: :request do
 
@@ -18,7 +19,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
     describe 'GET' do
 
-      before(:each) do
+      before do
         aker_set = create_list(:aker_set, 3)
 
         get api_v1_sets_path, headers: headers
@@ -36,7 +37,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
     describe 'POST' do
 
-      before(:each) do
+      before do
         body = {
           data: {
             type: "sets",
@@ -72,7 +73,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
       let(:owner_id) { "dirk@monkey.net" }
 
-      before(:each) do
+      before do
         body = {
           data: {
             type: "sets",
@@ -124,7 +125,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
     describe 'GET' do
 
-      before(:each) do
+      before do
         aker_set = create(:set_with_materials)
 
         get api_v1_set_path(aker_set), headers: {
@@ -154,7 +155,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
     describe 'PATCH' do
 
-      before(:each) do
+      before do
         @aker_set = create(:aker_set)
 
         @body = {
@@ -169,68 +170,96 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
       end
 
-      it 'returns a 200 if you are the owner' do
-        patch api_v1_set_path(@aker_set), params: @body, headers: headers
+      context 'when I own the set' do
+        it 'returns a 200' do
+          patch api_v1_set_path(@aker_set), params: @body, headers: headers
 
-        expect(response).to have_http_status(:ok)
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'conforms to the JSON API schema' do
+          patch api_v1_set_path(@aker_set), params: @body, headers: headers
+
+          expect(response).to match_api_schema('jsonapi')
+        end
+
+        it 'conforms to the Set schema' do
+          patch api_v1_set_path(@aker_set), params: @body, headers: headers
+
+          expect(response).to match_api_schema('sets')
+        end
+
+        it 'modifies the resource' do
+          patch api_v1_set_path(@aker_set), params: @body, headers: headers
+
+          expect(JSON.parse(response.body)['data']['attributes']['name']).to eq('Changed name')
+        end
+
+        it 'changes the name' do
+          patch api_v1_set_path(@aker_set), params: @body, headers: headers
+          expect(@aker_set.reload.name).to eq('Changed name')
+        end
+
       end
 
-      it 'returns a 403 if you are not the owner' do
-        @aker_set.owner_id = 'someone@here.com'
-        @aker_set.save
+      context 'when someone else owns the set' do
 
-        patch api_v1_set_path(@aker_set), params: @body, headers: headers
+        before do
+          @original_name = @aker_set.name
+          @aker_set.update_attributes(owner_id: 'someone@here.com')
+        end
 
-        expect(response).to have_http_status(:forbidden)
-      end
+        it 'returns a 403' do
+          patch api_v1_set_path(@aker_set), params: @body, headers: headers
+          expect(response).to have_http_status(:forbidden)
+        end
 
-      it 'conforms to the JSON API schema' do
-        patch api_v1_set_path(@aker_set), params: @body, headers: headers
-
-        expect(response).to match_api_schema('jsonapi')
-      end
-
-      it 'conforms to the Set schema' do
-        patch api_v1_set_path(@aker_set), params: @body, headers: headers
-
-        expect(response).to match_api_schema('sets')
-      end
-
-      it 'modifies the resource' do
-        patch api_v1_set_path(@aker_set), params: @body, headers: headers
-
-        expect(JSON.parse(response.body)['data']['attributes']['name']).to eq('Changed name')
+        it 'does not change the name' do
+          patch api_v1_set_path(@aker_set), params: @body, headers: headers
+          expect(@aker_set.reload.name).to eq(@original_name)
+        end
       end
 
     end
 
     describe 'DELETE' do
 
-      before(:each) do
+      before do
         @aker_set = create(:aker_set)
       end
 
-      it 'returns a 204' do
-        delete api_v1_set_path(@aker_set), headers: headers
+      context 'when I own the set' do
 
-        expect(response).to have_http_status(:no_content)
+        it 'returns a 204' do
+          delete api_v1_set_path(@aker_set), headers: headers
+
+          expect(response).to have_http_status(:no_content)
+        end
+
+        it 'has an empty response' do
+          delete api_v1_set_path(@aker_set), headers: headers
+
+          expect(response.body).to be_empty
+        end
+
+        it 'deletes the set' do
+          delete api_v1_set_path(@aker_set), headers: headers
+          expect(Aker::Set.where(id: @aker_set.id).first).to be_nil
+        end
       end
 
-      it 'has an empty response' do
-        delete api_v1_set_path(@aker_set), headers: headers
-
-        expect(response.body).to be_empty
+      context 'when someone else owns the set' do
+        before do
+          @aker_set.update_attributes(owner_id: 'someone@here.com')
+        end
+        it 'returns a 403' do
+          delete api_v1_set_path(@aker_set), headers: headers
+          expect(response).to have_http_status(:forbidden)
+        end
+        it 'does not delete the set' do
+          expect(Aker::Set.where(id: @aker_set.id).first).not_to be_nil
+        end
       end
-
-      it 'returns a 403 if you are not the owner' do
-        @aker_set.owner_id = 'someone@here.com'
-        @aker_set.save
-
-        delete api_v1_set_path(@aker_set), headers: headers
-
-        expect(response).to have_http_status(:forbidden)
-      end      
-
     end
 
   end
@@ -239,7 +268,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
     describe 'GET' do
 
-      before(:each) do
+      before do
         set_with_materials = create(:set_with_materials)
 
         get api_v1_set_materials_path(set_with_materials), headers: {
@@ -265,8 +294,13 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
     describe 'PATCH' do
 
-      let(:make_patch_request) do
-        @set_with_materials = create(:set_with_materials)
+      let(:owner) { 'user@here.com' }
+
+      before do
+        @set_with_materials = create(:set_with_materials, owner_id: owner)
+      end
+
+      def make_patch_request
         materials = create_list(:aker_material, 3)
 
         body = {
@@ -277,22 +311,44 @@ RSpec.describe 'Api::V1::Sets', type: :request do
       end
 
       context 'when uuids exist in Materials service' do
-        before(:each) do
+        before do
           allow(Material).to receive(:valid?).and_return(true)
-          make_patch_request
         end
 
-        it 'returns a 204' do
-          expect(response).to have_http_status(:no_content)
+        context 'when I own the set' do
+          before do
+            make_patch_request
+          end
+
+          it 'returns a 204' do
+            expect(response).to have_http_status(:no_content)
+          end
+
+          it 'replaces all materials' do
+            expect(@set_with_materials.materials.count).to eql(3)
+          end
         end
 
-        it 'replaces all materials' do
-          expect(@set_with_materials.materials.count).to eql(3)
+        context 'when someone else owns the set' do
+          let(:owner) { 'someone_else@here.com' }
+
+          before do
+            @original_materials = @set_with_materials.materials.to_a
+            make_patch_request
+          end
+
+          it 'returns 403' do
+            expect(response).to have_http_status(:forbidden)
+          end
+
+          it 'does not change the materials' do
+            expect(@set_with_materials.reload.materials).to eq(@original_materials)
+          end
         end
       end
 
       context 'when uuids do not exist in Materials service' do
-        before(:each) do
+        before do
           allow(Material).to receive(:valid?).and_return(false)
           make_patch_request
         end
@@ -305,9 +361,14 @@ RSpec.describe 'Api::V1::Sets', type: :request do
     end
 
     describe 'POST' do
+      let(:owner) { 'user@here.com' }
 
-      let(:make_post_request) do
-        @set_with_materials = create(:set_with_materials)
+      before do
+        @set_with_materials = create(:set_with_materials, owner_id: owner)
+        @original_materials = @set_with_materials.materials.to_a
+      end
+
+      def make_post_request
         materials = create_list(:aker_material, 3)
 
         body = {
@@ -318,22 +379,44 @@ RSpec.describe 'Api::V1::Sets', type: :request do
       end
 
       context 'when uuids exist in Materials service' do
-        before(:each) do
+        before do
           allow(Material).to receive(:valid?).and_return(true)
-          make_post_request
         end
 
-        it 'returns a 204' do
-          expect(response).to have_http_status(:no_content)
+        context 'when I own the set' do
+          before do
+            make_post_request
+          end
+
+          it 'returns a 204' do
+            expect(response).to have_http_status(:no_content)
+          end
+
+          it 'adds the new materials to the set' do
+            expect(@set_with_materials.materials.count).to eql(@original_materials.count+3)
+          end
         end
 
-        it 'adds the new materials to the set' do
-          expect(@set_with_materials.materials.count).to eql(8)
+        context 'when someone else owns the set' do
+          let(:owner) { 'someone_else@here.com' }
+
+          before do
+            make_post_request
+          end
+
+          it 'returns 403' do
+            expect(response).to have_http_status(:forbidden)
+          end
+
+          it 'does not change the materials' do
+            expect(@set_with_materials.reload.materials.to_a).to eq(@original_materials)
+          end
         end
+        
       end
 
       context 'when uuids do not exist in Materials service' do
-        before(:each) do
+        before do
           allow(Material).to receive(:valid?).and_return(false)
           make_post_request
         end
@@ -341,28 +424,48 @@ RSpec.describe 'Api::V1::Sets', type: :request do
         it 'returns a 422' do
           expect(response).to have_http_status(:unprocessable_entity)
         end
+
+        it 'does not change the materials' do
+          expect(@set_with_materials.reload.materials.to_a).to eq(@original_materials)
+        end
       end
 
     end
 
     describe 'DELETE' do
 
-      before(:each) do
-        @set_with_materials = create(:set_with_materials)
-
+      before do
+        @set_with_materials = create(:set_with_materials, owner_id: owner)
+        @original_material_count = @set_with_materials.materials.count
         body = {
           data: [{ id: @set_with_materials.materials.first.id, type: "materials" }]
         }.to_json
-
         delete api_v1_set_relationships_materials_path(@set_with_materials), params: body, headers: headers
       end
 
-      it 'returns a 204' do
-        expect(response).to have_http_status(:no_content)
+      context 'when you own the set' do
+        let(:owner) { 'user@here.com' }
+
+        it 'returns a 204' do
+          expect(response).to have_http_status(:no_content)
+        end
+
+        it 'removes the material from the set' do
+          expect(@set_with_materials.materials.count).to eq(@original_material_count-1)
+        end
+
       end
 
-      it 'removes the material from the set' do
-        expect(@set_with_materials.materials.count).to eql(4)
+      context 'when someone else owns the set' do
+        let(:owner) { 'someone_else@here.com' }
+
+        it 'returns a 403' do
+          expect(response).to have_http_status(:forbidden)
+        end
+
+        it 'does not remove the material from the set' do
+          expect(@set_with_materials.materials.count).to eq(@original_material_count)
+        end
       end
 
     end
@@ -373,7 +476,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
     describe 'GET with correct secret_key' do
 
-      before(:each) do
+      before do
         aker_set = create(:set_with_materials)
         payload = { data: {} }
         token = JWT.encode payload, Rails.configuration.jwt_secret_key, 'HS256'
@@ -390,7 +493,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
     describe 'GET with bad_key' do
 
-      before(:each) do
+      before do
         aker_set = create(:set_with_materials)
         payload = { data: {} }
         token = JWT.encode payload, 'x', 'HS256'
@@ -412,9 +515,9 @@ RSpec.describe 'Api::V1::Sets', type: :request do
   end
 
   describe 'filtering' do
-    context 'When filtering owner email' do
-      let!(:jeff) { "jeff@here.com" }
-      let!(:dirk) { "dirk@here.com" }
+    context 'when filtering owner email' do
+      let(:jeff) { "jeff@here.com" }
+      let(:dirk) { "dirk@here.com" }
 
       let!(:sets) do
         [
@@ -424,7 +527,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
         ]
       end
 
-      context 'When a known owner is specified' do
+      context 'when a known owner is specified' do
 
         it 'returns the sets with the given owner' do
           get api_v1_sets_path, params: { "filter[owner_id]" => jeff }, headers: {
@@ -437,7 +540,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
       end
 
-      context 'When an unknown owner is specified' do
+      context 'when an unknown owner is specified' do
 
         it 'returns no sets' do
           get api_v1_sets_path, params: { "filter[owner_id]" => 'bananas' }, headers: {
