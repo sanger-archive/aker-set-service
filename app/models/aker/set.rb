@@ -1,5 +1,4 @@
 class Aker::Set < ApplicationRecord
-  include AkerPermissionGem::Accessible
 
   has_many :set_materials, foreign_key: :aker_set_id, dependent: :destroy
   has_many :materials, through: :set_materials, source: :aker_material
@@ -13,10 +12,13 @@ class Aker::Set < ApplicationRecord
   end
 
   def clone(newname, owner_email)
-    copy = Aker::Set.create(name: newname, locked: false)
-    copy.set_default_permission(owner_email)
+    copy = Aker::Set.create(name: newname, locked: false, owner_id: owner_email)
     copy.materials += materials
     copy
+  end
+
+  def permitted?(username, access)
+    (access.to_sym==:read || (username.is_a?(String) ? owner_id==username : username.include?(owner_id) ))
   end
 
 end

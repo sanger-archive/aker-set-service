@@ -104,19 +104,6 @@ RSpec.describe 'Api::V1::Sets', type: :request do
         expect(body[:data][:attributes][:owner_id]).to eq owner_id
       end
 
-      it 'sets permissions for the set for the owner and current_user' do
-        aker_set = Aker::Set.last
-        permissions = aker_set.permissions.where(permitted: owner_id)
-        expect(permissions.any? do |permission|
-          ["read", "write"].include?(permission.permission_type)
-        end).to eq(true)
-
-        permissions = aker_set.permissions.where(permitted: "user@here.com")
-        expect(permissions.any? do |permission|
-          ["read", "write"].include?(permission.permission_type)
-        end).to eq(true)
-      end
-
     end
 
   end
