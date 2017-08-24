@@ -12,7 +12,6 @@ module Api
       before_action :validate_uuids, only: [:update_relationship, :create_relationship]
       before_action :create_uuids, only: [:update_relationship, :create_relationship]
       before_action :check_lock, only: [:update, :destroy]
-      before_action :check_owner, only: [:update, :destroy]
 
       before_action :authorise_read, only: [:show_relationship, :clone, :show]
       before_action :authorise_write, only: [:create_relationship, :update_relationship, :destroy_relationship, :update, :destroy]
@@ -21,14 +20,6 @@ module Api
       def set_owner
         self.owner_id = params.fetch(:data).dig("attributes", "owner_id")
         params["data"]["attributes"].delete("owner_id") if self.owner_id
-      end
-
-      def check_owner
-        set_instance = Aker::Set.find(params[:id])
-        if set_instance.owner_id != current_user.email
-          return render json: { errors: [{ status: '403', title: 'Forbidden', detail: 'You cannot perform the action because you are not the owner of the set' }]}, 
-            status: :forbidden
-        end
       end
 
       # This is the only way I found to prevent deleting materials from a set via 'patch'
