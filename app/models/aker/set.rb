@@ -18,7 +18,7 @@ class Aker::Set < ApplicationRecord
   end
 
   def permitted?(username, access)
-    (access.to_sym==:read || (username.is_a?(String) ? owner_id==username : username.include?(owner_id) ))
+    (access.to_sym==:read || owner_id.nil? || (username.is_a?(String) ? owner_id==username : username.include?(owner_id) ))
   end
 
 end
