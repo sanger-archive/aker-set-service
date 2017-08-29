@@ -8,7 +8,7 @@ module Api
     class SetProcessor < JSONAPI::Processor
 
       # POST /sets/:id/relationships/materials
-      # Gets the difference between what the materials already in this Aker::Set,
+      # Gets the difference between the materials already in this Aker::Set,
       # and what is in the request, and bulk inserts them onto the link table
       def create_to_many_relationships
         new_set_materials = Set.new(data) - model.material_ids
@@ -29,10 +29,6 @@ module Api
 
       def resource_id
         params[:resource_id]
-      end
-
-      def relationship_type
-        params[:relationship_type].to_sym
       end
 
       # The array of material uuids from the request
