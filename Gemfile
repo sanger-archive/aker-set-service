@@ -28,6 +28,7 @@ gem 'rswag'
 gem 'swagger-ui_rails'
 gem 'sprockets-rails'
 gem 'cancancan'
+gem 'bulk_insert'
 
 gem 'aker_credentials_gem', github: 'sanger/aker-credentials'
 

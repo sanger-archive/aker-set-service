@@ -399,7 +399,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
             expect(@set_with_materials.reload.materials.to_a).to eq(@original_materials)
           end
         end
-        
+
       end
 
       context 'when uuids do not exist in Materials service' do
