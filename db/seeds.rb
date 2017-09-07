@@ -9,9 +9,3 @@ sets = Aker::Set.create([
   { id: "e7a5fd55-f501-4b49-8cd4-e490b9693f4a", name: "Malaria" },
   { id: "9fc2c0d3-51b2-44c4-88a6-64ac02e7a80d", name: "Pathogens" },
 ])
-
-sets.each do |s|
-  ['read', 'write'].each do |type|
-    s.permissions.create([{ permitted: 'world', permission_type: type}])
-  end
-end

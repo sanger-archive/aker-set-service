@@ -27,17 +27,6 @@ module Api
         end
       end
 
-      after_create do
-        user = context[:current_user]
-        owner_email = @model.owner_id
-        @model.set_default_permission(user['email'])
-        if owner_email != user['email']
-          @model.permissions.create([{permitted: owner_email, permission_type: "read"}])
-          @model.permissions.create([{permitted: owner_email, permission_type: "write"}])
-        end
-        @model.save!
-      end
-
       def meta(options)
         {
           size: @model.materials.count

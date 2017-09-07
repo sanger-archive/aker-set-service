@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'ability'
 
 RSpec.describe Aker::Set, type: :model do
 
@@ -42,16 +43,12 @@ RSpec.describe Aker::Set, type: :model do
     expect(set.owner_id).to eq 'someone_else@there.com'
   end
 
-  it 'has permissions' do
+  it 'has correct privileges' do
     set = create(:aker_set, name: 'jeff')
-    # Factory girl will set initial permissions on the set
-    #world = create(:group, name: 'world')
     ability = Ability.new(OpenStruct.new('email' => 'dirk@here.com', 'groups' => ["world"]))
     expect(ability.can?(:read, set)).to eq true
     expect(ability.can?(:write, set)).to eq false
-
-    set.permissions.create(permitted: 'dirk@here.com', permission_type: "read")
-    set.permissions.create(permitted: 'dirk@here.com', permission_type: "write")
+    ability = Ability.new(OpenStruct.new('email' => set.owner_id, 'groups' => []))
     expect(ability.can?(:read, set)).to eq true
     expect(ability.can?(:write, set)).to eq true
   end
