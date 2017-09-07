@@ -6,13 +6,6 @@ GIT
       jwt
       request_store
 
-GIT
-  remote: git://github.com/sanger/aker-permission.git
-  revision: 84e258b187cda8108a764069b5c49e5fa6fc383e
-  specs:
-    aker_permission_gem (0.4.0)
-      cancancan
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -62,6 +55,8 @@ GEM
       ice_nine (~> 0.11.0)
       thread_safe (~> 0.3, >= 0.3.1)
     builder (3.2.3)
+    bulk_insert (1.5.0)
+      activerecord (>= 4.1.0)
     byebug (9.0.6)
     cancancan (2.0.0)
     codeclimate-engine-rb (0.4.0)
@@ -263,8 +258,9 @@ PLATFORMS
 
 DEPENDENCIES
   aker_credentials_gem!
-  aker_permission_gem!
+  bulk_insert
   byebug
+  cancancan
   database_cleaner
   factory_girl_rails
   faraday
