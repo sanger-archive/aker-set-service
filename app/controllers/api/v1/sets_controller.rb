@@ -11,7 +11,7 @@ module Api
 
       before_action :validate_uuids, only: [:update_relationship, :create_relationship]
       before_action :create_uuids, only: [:update_relationship, :create_relationship]
-      before_action :check_lock, only: [:update, :destroy]
+      before_action :check_lock, only: [:update, :destroy, :update_relationship, :create_relationship, :destroy_relationship]
 
       before_action :authorise_read, only: [:show_relationship, :clone, :show]
       before_action :authorise_write, only: [:create_relationship, :update_relationship, :destroy_relationship, :update, :destroy]
@@ -24,7 +24,7 @@ module Api
 
       # This is the only way I found to prevent deleting materials from a set via 'patch'
       def check_lock
-        if Aker::Set.find(params[:id]).locked?
+        if Aker::Set.find(resource_id).locked?
           return render json: { errors: [{ status: '422', title: 'Unprocessable entity', detail: 'Set locked' }]}, status: :unprocessable_entity
         end
       end
@@ -78,6 +78,10 @@ module Api
 
       def authorise_write
         authorize! :write, aker_set
+      end
+
+      def resource_id
+        params[:id] || params[:set_id]
       end
 
     end

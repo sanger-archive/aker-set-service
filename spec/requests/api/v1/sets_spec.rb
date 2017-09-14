@@ -316,6 +316,17 @@ RSpec.describe 'Api::V1::Sets', type: :request do
           end
         end
 
+        context 'when the set is locked' do
+          before do
+            @set_with_materials.update_attributes(locked: true)
+            make_patch_request
+          end
+
+          it 'returns a 422' do
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
+
         context 'when someone else owns the set' do
           let(:owner) { 'someone_else@here.com' }
 
@@ -384,6 +395,17 @@ RSpec.describe 'Api::V1::Sets', type: :request do
           end
         end
 
+        context 'when the set is locked' do
+          before do
+            @set_with_materials.update_attributes(locked: true)
+            make_post_request
+          end
+
+          it 'returns a 422' do
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
+
         context 'when someone else owns the set' do
           let(:owner) { 'someone_else@here.com' }
 
@@ -424,14 +446,22 @@ RSpec.describe 'Api::V1::Sets', type: :request do
       before do
         @set_with_materials = create(:set_with_materials, owner_id: owner)
         @original_material_count = @set_with_materials.materials.count
+      end
+
+      let(:make_delete_request) do
         body = {
           data: [{ id: @set_with_materials.materials.first.id, type: "materials" }]
         }.to_json
+
         delete api_v1_set_relationships_materials_path(@set_with_materials), params: body, headers: headers
       end
 
       context 'when you own the set' do
         let(:owner) { 'user@here.com' }
+
+        before do
+          make_delete_request
+        end
 
         it 'returns a 204' do
           expect(response).to have_http_status(:no_content)
@@ -440,11 +470,27 @@ RSpec.describe 'Api::V1::Sets', type: :request do
         it 'removes the material from the set' do
           expect(@set_with_materials.materials.count).to eq(@original_material_count-1)
         end
+      end
 
+      context 'when the set is locked' do
+        let(:owner) { 'user@here.com' }
+
+        before do
+          @set_with_materials.update_attributes(locked: true)
+          make_delete_request
+        end
+
+        it 'returns a 422' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
       end
 
       context 'when someone else owns the set' do
         let(:owner) { 'someone_else@here.com' }
+
+        before do
+          make_delete_request
+        end
 
         it 'returns a 403' do
           expect(response).to have_http_status(:forbidden)
