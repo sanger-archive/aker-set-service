@@ -1,5 +1,4 @@
 require 'rails_helper'
-require 'jwt'
 
 RSpec.describe 'Api::V1::Sets', type: :request do
 
