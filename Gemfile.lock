@@ -266,6 +266,7 @@ DEPENDENCIES
   faraday
   json-schema
   jsonapi-resources
+  jwt
   listen (~> 3.0.5)
   pg (~> 0.18)
   pry
