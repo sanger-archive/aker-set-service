@@ -48,6 +48,7 @@ group :test, :development do
   gem 'factory_girl_rails'
   gem 'database_cleaner'
   gem 'json-schema'
+  gem 'jwt'
 end
 
 gem 'rspec-rails'

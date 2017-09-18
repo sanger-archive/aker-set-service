@@ -1,4 +1,3 @@
-require 'JWT'
 require 'swagger_helper'
 
 describe 'Sets API' do
