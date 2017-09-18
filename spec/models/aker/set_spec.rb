@@ -26,7 +26,7 @@ RSpec.describe Aker::Set, type: :model do
     it 'cannot be unlocked' do
       set = create(:aker_set, locked: true)
       expect(set).to be_valid
-      expect(set.update_attributes(name: 'dirk')).to eq false
+      expect(set.update_attributes(locked: false)).to eq false
       expect(set).to_not be_valid
     end
 
