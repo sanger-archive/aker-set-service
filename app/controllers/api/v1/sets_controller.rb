@@ -25,7 +25,7 @@ module Api
       # This is the only way I found to prevent deleting materials from a set via 'patch'
       def check_lock
         if Aker::Set.find(resource_id).locked?
-          return render json: { errors: [{ status: '422', title: 'Unprocessable entity', detail: 'Set locked' }]}, status: :unprocessable_entity
+          return render json: { errors: [{ status: '422', title: 'Unprocessable entity', detail: 'Set is locked' }]}, status: :unprocessable_entity
         end
       end
 
