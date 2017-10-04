@@ -5,4 +5,6 @@ JSONAPI.configure do |config|
   config.resource_key_type = :uuid
   # optional request features
   config.allow_include = true
+
+  config.maximum_page_size = 1000
 end
