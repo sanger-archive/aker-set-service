@@ -7,6 +7,9 @@ class Aker::Set < ApplicationRecord
 
   validate :validate_locked, if: :locked_was
 
+  before_save :strip_name
+  before_validation :strip_name
+
   def validate_locked
     errors.add(:base, "Set is locked") unless changes.empty?
   end
@@ -19,6 +22,13 @@ class Aker::Set < ApplicationRecord
 
   def permitted?(username, access)
     (access.to_sym==:read || owner_id.nil? || (username.is_a?(String) ? owner_id==username : username.include?(owner_id) ))
+  end
+
+  def strip_name
+    stripped = name&.strip
+    if stripped != name
+      self.name = stripped
+    end
   end
 
 end

@@ -37,6 +37,7 @@ ActiveRecord::Schema.define(version: 20171018134626) do
     t.datetime "updated_at",                 null: false
     t.boolean  "locked",     default: false, null: false
     t.string   "owner_id"
+    t.index ["name"], name: "index_aker_sets_on_name", unique: true, using: :btree
   end
 
   add_foreign_key "aker_set_materials", "aker_materials"

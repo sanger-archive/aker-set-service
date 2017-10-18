@@ -17,6 +17,16 @@ RSpec.describe Aker::Set, type: :model do
     expect(build(:aker_set, name: 'JEFF_SET')).not_to be_valid
   end
 
+  it 'has its name stripped' do
+    set = create(:aker_set, name: '  jeff  ')
+    expect(set.name).to eq('jeff')
+  end
+
+  it 'is not valid without a unique stripped name' do
+    set = create(:aker_set, name: '  jeff')
+    expect(build(:aker_set, name: 'JEFF  ')).not_to be_valid
+  end
+
   context 'when the set is unlocked' do
     it 'can be edited' do
       set = create(:aker_set, name: 'jeff')
