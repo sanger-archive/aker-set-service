@@ -12,6 +12,11 @@ RSpec.describe Aker::Set, type: :model do
     expect(build(:aker_set, name: set.name)).to_not be_valid
   end
 
+  it 'is not valid with a different capitalisation of an exising name' do
+    set = create(:aker_set, name: 'jeff_set')
+    expect(build(:aker_set, name: 'JEFF_SET')).not_to be_valid
+  end
+
   context 'when the set is unlocked' do
     it 'can be edited' do
       set = create(:aker_set, name: 'jeff')
@@ -61,5 +66,11 @@ RSpec.describe Aker::Set, type: :model do
     ability = Ability.new(OpenStruct.new('email' => set.owner_id, 'groups' => []))
     expect(ability.can?(:read, set)).to eq true
     expect(ability.can?(:write, set)).to eq true
+  end
+
+  it 'finds names case insensitively' do
+    s = create(:aker_set, name: 'jeff')
+    t = Aker::Set.find_by(name: 'JEFF')
+    expect(t).to eq(s)
   end
 end
