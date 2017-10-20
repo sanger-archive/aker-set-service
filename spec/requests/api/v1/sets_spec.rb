@@ -20,7 +20,6 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
       before do
         aker_set = create_list(:aker_set, 3)
-
         get api_v1_sets_path, headers: headers
       end
 
@@ -116,7 +115,8 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
         get api_v1_set_path(aker_set), headers: {
           "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION" => jwt
         }
       end
 
@@ -259,7 +259,8 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
         get api_v1_set_materials_path(set_with_materials), headers: {
           "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION" => jwt
         }
       end
 
@@ -565,6 +566,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
           get api_v1_sets_path, params: { "filter[owner_id]" => jeff }, headers: {
             "Content-Type": "application/vnd.api+json",
             "Accept": "application/vnd.api+json",
+            "HTTP_X_AUTHORISATION" => jwt
           }
           @body = JSON.parse(response.body, symbolize_names: true)
           expect(@body[:data].length).to eq 2
@@ -578,6 +580,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
           get api_v1_sets_path, params: { "filter[owner_id]" => 'bananas' }, headers: {
             "Content-Type": "application/vnd.api+json",
             "Accept": "application/vnd.api+json",
+            "HTTP_X_AUTHORISATION" => jwt
           }
           @body = JSON.parse(response.body, symbolize_names: true)
           expect(@body[:data].length).to eq 0

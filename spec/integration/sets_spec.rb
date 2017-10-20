@@ -11,7 +11,10 @@ describe 'Sets API' do
       consumes 'application/vnd.api+json'
       produces 'application/vnd.api+json'
 
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string
+      
       response '200', 'sets found' do
+        let(:HTTP_X_AUTHORISATION) { jwt }
         schema type: :object, properties: {
           data: {
             type: :array,
@@ -58,8 +61,10 @@ describe 'Sets API' do
           }
         }
       }
+      parameter name: 'HTTP_X_AUTHORISATION', in: :header, type: :string
 
       response '201', 'set created' do
+        let(:HTTP_X_AUTHORISATION) { jwt }
         let(:set) do
           set = build(:aker_set)
 
