@@ -10,11 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170823122238) do
+ActiveRecord::Schema.define(version: 20171018134626) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
+  enable_extension "citext"
 
   create_table "aker_materials", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -31,11 +32,12 @@ ActiveRecord::Schema.define(version: 20170823122238) do
   end
 
   create_table "aker_sets", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
-    t.string   "name"
+    t.citext   "name"
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
     t.boolean  "locked",     default: false, null: false
     t.string   "owner_id"
+    t.index ["name"], name: "index_aker_sets_on_name", unique: true, using: :btree
   end
 
   add_foreign_key "aker_set_materials", "aker_materials"
