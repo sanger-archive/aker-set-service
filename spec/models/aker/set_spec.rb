@@ -12,7 +12,7 @@ RSpec.describe Aker::Set, type: :model do
     expect(build(:aker_set, name: set.name)).to_not be_valid
   end
 
-  it 'is not valid with a different capitalisation of an exising name' do
+  it 'is not valid with a different capitalisation of an existing name' do
     set = create(:aker_set, name: 'jeff_set')
     expect(build(:aker_set, name: 'JEFF_SET')).not_to be_valid
   end
@@ -22,9 +22,14 @@ RSpec.describe Aker::Set, type: :model do
     expect(set.name).to eq('jeff')
   end
 
-  it 'is not valid without a unique stripped name' do
-    set = create(:aker_set, name: '  jeff')
-    expect(build(:aker_set, name: 'JEFF  ')).not_to be_valid
+  it 'has groups of whitespace contracted' do
+    set = create(:aker_set, name: " alpha\tbeta    gamma\n")
+    expect(set.name).to eq('alpha beta gamma')
+  end
+
+  it 'is not valid without a unique sanitised name' do
+    set = create(:aker_set, name: 'jeff alpha')
+    expect(build(:aker_set, name: 'JEFF   ALPHA ')).not_to be_valid
   end
 
   context 'when the set is unlocked' do
