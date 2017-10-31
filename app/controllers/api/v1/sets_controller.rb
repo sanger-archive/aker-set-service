@@ -8,12 +8,12 @@ module Api
 
       attr_accessor :owner_id
       skip_authorization_check only: [:create, :index, :show]
+      skip_credentials only: [:show, :index]
 
       before_action :validate_uuids, only: [:update_relationship, :create_relationship]
       before_action :create_uuids, only: [:update_relationship, :create_relationship]
       before_action :check_lock, only: [:update, :destroy, :update_relationship, :create_relationship, :destroy_relationship]
 
-      before_action :authorise_read, only: [:show_relationship, :clone, :show]
       before_action :authorise_write, only: [:create_relationship, :update_relationship, :destroy_relationship, :update, :destroy]
       before_action :set_owner, only: :create
 
