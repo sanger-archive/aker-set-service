@@ -524,23 +524,20 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
     end
 
-    describe 'GET with bad_key' do
+    describe 'GET without a JWT' do
 
       before do
         aker_set = create(:set_with_materials)
-        payload = { data: {} }
-        token = JWT.encode payload, 'x', 'HS256'
 
         get api_v1_set_path(aker_set), headers: {
           "Content-Type": "application/vnd.api+json",
           "Accept": "application/vnd.api+json",
-          "HTTP_X_AUTHORISATION": token
         }
 
       end
 
-      it 'returns a 401' do
-        expect(response).to have_http_status(:unauthorized)
+      it 'returns a 200' do
+        expect(response).to have_http_status(:ok)
       end
 
     end
