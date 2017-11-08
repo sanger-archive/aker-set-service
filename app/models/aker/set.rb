@@ -7,8 +7,8 @@ class Aker::Set < ApplicationRecord
 
   validate :validate_locked, if: :locked_was
 
-  before_save :sanitise_name
-  before_validation :sanitise_name
+  before_save :sanitise_name, :sanitise_owner
+  before_validation :sanitise_name, :sanitise_owner
 
   def validate_locked
     errors.add(:base, "Set is locked") unless changes.empty?
@@ -29,6 +29,15 @@ class Aker::Set < ApplicationRecord
       sanitised = name.strip.gsub(/\s+/,' ')
       if sanitised != name
         self.name = sanitised
+      end
+    end
+  end
+
+  def sanitise_owner
+    if owner_id
+      sanitised = owner_id.strip.downcase
+      if sanitised != owner_id
+        self.owner_id = sanitised
       end
     end
   end
