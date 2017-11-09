@@ -32,6 +32,11 @@ RSpec.describe Aker::Set, type: :model do
     expect(build(:aker_set, name: 'JEFF   ALPHA ')).not_to be_valid
   end
 
+  it 'has its owner sanitised' do
+    set = create(:aker_set, name: 'myset', owner_id: '   ALPHA@SANGER.AC.UK  ')
+    expect(set.owner_id).to eq('alpha@sanger.ac.uk')
+  end
+
   context 'when the set is unlocked' do
     it 'can be edited' do
       set = create(:aker_set, name: 'jeff')
