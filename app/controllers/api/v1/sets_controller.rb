@@ -41,7 +41,7 @@ module Api
         materials_to_create = existing_materials - param_uuids
         Aker::Material.bulk_insert(values: materials_to_create)
       end
-      
+
       def clone
         cloneparams = clone_params
         set = Aker::Set.find(cloneparams[:set_id])
