@@ -37,7 +37,9 @@ module Api
       end
 
       def create_uuids
-        param_uuids.each { |uuid| Aker::Material.find_or_create_by!(id: uuid) }
+        existing_materials = Aker::Material.where(id: param_uuids).pluck(:id)
+        materials_to_create = existing_materials - param_uuids
+        Aker::Material.bulk_insert(values: materials_to_create)
       end
 
       def clone
