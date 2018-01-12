@@ -38,8 +38,9 @@ module Api
 
       def create_uuids
         existing_materials = Aker::Material.where(id: param_uuids).pluck(:id)
-        materials_to_create = existing_materials - param_uuids
-        Aker::Material.bulk_insert(values: materials_to_create)
+        materials_to_create = param_uuids - existing_materials
+        time = Time.now
+        Aker::Material.bulk_insert(:id, :created_at, :updated_at, values: materials_to_create.map {|id| {id: id, created_at: time, updated_at: time} })
       end
 
       def clone
