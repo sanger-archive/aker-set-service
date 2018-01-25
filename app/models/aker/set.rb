@@ -4,6 +4,7 @@ class Aker::Set < ApplicationRecord
   has_many :materials, through: :set_materials, source: :aker_material
 
   validates :name, presence: true, uniqueness: true
+  validates_format_of :name, without: /,/, message: 'must not contain commas'
 
   validate :validate_locked, if: :locked_was
 
@@ -11,7 +12,7 @@ class Aker::Set < ApplicationRecord
   before_validation :sanitise_name, :sanitise_owner
 
   def validate_locked
-    errors.add(:base, "Set is locked") unless changes.empty?
+    errors.add(:base, 'Set is locked') unless changes.empty?
   end
 
   def clone(newname, owner_email)
