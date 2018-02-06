@@ -1,8 +1,8 @@
 GIT
   remote: git://github.com/sanger/aker-credentials.git
-  revision: 4bf5ee55bd59890aa90ee29bb211bad60cbb0f20
+  revision: 3de8fd8182ad8687c160ed150b552497ae307b6d
   specs:
-    aker_credentials_gem (0.2.5)
+    aker_credentials_gem (0.2.6)
       activesupport
       faraday
       jwt
@@ -83,7 +83,7 @@ GEM
       railties (>= 3.0.0)
     faraday (0.14.0)
       multipart-post (>= 1.2, < 3)
-    ffi (1.9.18)
+    ffi (1.9.21)
     finagle-thrift (1.4.2)
       thrift (~> 0.9.3)
     flay (2.10.0)
@@ -135,7 +135,7 @@ GEM
       method_source (~> 0.9.0)
     public_suffix (3.0.1)
     puma (3.11.2)
-    rack (2.0.3)
+    rack (2.0.4)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (5.0.6)
@@ -242,7 +242,7 @@ GEM
     thread_safe (0.3.6)
     thrift (0.9.3.0)
     tty-which (0.3.0)
-    tzinfo (1.2.4)
+    tzinfo (1.2.5)
       thread_safe (~> 0.1)
     virtus (1.0.5)
       axiom-types (~> 0.1)
@@ -291,4 +291,4 @@ DEPENDENCIES
   zipkin-tracer
 
 BUNDLED WITH
-   1.16.0
+   1.16.1
