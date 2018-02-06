@@ -234,6 +234,19 @@ RSpec.describe 'Api::V1::Sets', type: :request do
         end
       end
 
+      context 'when I own the set but it\'s locked' do
+
+        before do
+          @aker_set.update_attributes(locked: true)
+        end
+
+        it 'returns a 422' do
+          delete api_v1_set_path(@aker_set), headers: headers
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+      end
+
       context 'when someone else owns the set' do
         before do
           @aker_set.update_attributes(owner_id: 'someone@here.com')
