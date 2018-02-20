@@ -7,11 +7,17 @@ module Api
       has_many :materials, class_name: 'Material', relation_name: :materials, acts_as_set: true
 
       filter :name
+      filter :locked
       # http://localhost:3000/api/v1/sets?filter[owner_id]=guest
       filter :owner_id, apply: -> (records, value, _options) {
         return records.none if value.nil?
         records.where(owner_id: value)
       }
+
+      def self.default_sort
+        [{field: 'created_at', direction: :desc}]
+      end
+
 
       before_create do
         user = context[:current_user]
