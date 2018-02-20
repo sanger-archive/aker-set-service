@@ -2,6 +2,7 @@ module Api
   module V1
     class SetResource < JSONAPI::Resource
       model_name 'Aker::Set'
+      paginator :paged
       attributes :name, :owner_id, :created_at, :locked
       has_many :materials, class_name: 'Material', relation_name: :materials, acts_as_set: true
 
