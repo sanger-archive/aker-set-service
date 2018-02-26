@@ -14,10 +14,6 @@ module Api
         records.where(owner_id: value)
       }
 
-      def self.default_sort
-        [{field: 'created_at', direction: :desc}]
-      end
-
 
       before_create do
         user = context[:current_user]
