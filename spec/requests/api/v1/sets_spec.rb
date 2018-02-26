@@ -558,6 +558,44 @@ RSpec.describe 'Api::V1::Sets', type: :request do
   end
 
   describe 'filtering' do
+    context 'when filtering locked sets' do
+      let!(:sets) do
+        [
+          create(:aker_set, name: 'locked 1', locked: true),
+          create(:aker_set, name: 'not locked', locked: false),
+          create(:aker_set, name: 'locked 2', locked: true),
+        ]
+      end
+      it 'returns the locked sets' do
+        get api_v1_sets_path, params: { "filter[locked]" => true }, headers: {
+          "Content-Type": "application/vnd.api+json",
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION" => jwt
+        }
+        @body = JSON.parse(response.body, symbolize_names: true)
+        expect(@body[:data].length).to eq 2
+        names = @body[:data].map{|o| o[:attributes][:name]}
+        expect(names.include?('locked 1')).to eq(true)
+        expect(names.include?('locked 2')).to eq(true)
+        expect(names.include?('not locked')).to eq(false)
+      end
+
+      it 'returns the unlocked sets' do
+        get api_v1_sets_path, params: { "filter[locked]" => false }, headers: {
+          "Content-Type": "application/vnd.api+json",
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION" => jwt
+        }
+        @body = JSON.parse(response.body, symbolize_names: true)
+        expect(@body[:data].length).to eq 1
+        names = @body[:data].map{|o| o[:attributes][:name]}
+        expect(names.include?('locked 1')).to eq(false)
+        expect(names.include?('locked 2')).to eq(false)
+        expect(names.include?('not locked')).to eq(true)
+      end
+
+    end
+
     context 'when filtering owner email' do
       let(:jeff) { "jeff@here.com" }
       let(:dirk) { "dirk@here.com" }
