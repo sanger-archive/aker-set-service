@@ -15,7 +15,7 @@ module Api
       }
 
       # sets?filter[empty]=true
-      # If the value is true only return return empty sets
+      # If the value is true only return empty sets
       # If it's false only return inhabited sets
       # Anything else and don't filter
       filter :empty, apply: -> (records, value, _options) {
