@@ -94,20 +94,20 @@ RSpec.describe Aker::Set, type: :model do
     expect(t).to eq(s)
   end
 
-  describe 'Aker::Set.empty' do
+  describe 'Aker::Set.empty / Aker::Set.inhabited' do
 
     before do
       @inhabited_sets = create_list(:set_with_materials, 2)
       @empty_sets = create_list(:aker_set, 3)
     end
 
-    it 'can filter Sets that are empty' do
+    it 'can filter for empty Sets' do
       empty_sets = Aker::Set.empty
       expect(empty_sets.count).to eql(3)
       expect(empty_sets).to match_array(@empty_sets)
     end
 
-    it 'can filter Sets that are inhabited' do
+    it 'can filter for inhabited Sets' do
       inhabited_sets = Aker::Set.inhabited
       expect(inhabited_sets.count).to eql(2)
       expect(inhabited_sets).to match_array(@inhabited_sets)
