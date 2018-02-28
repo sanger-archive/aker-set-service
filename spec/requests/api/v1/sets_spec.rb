@@ -635,6 +635,49 @@ RSpec.describe 'Api::V1::Sets', type: :request do
         end
       end
     end
+
+    describe 'empty/inhabited sets' do
+
+      let!(:empty_sets) { create_list(:aker_set, 3) }
+      let!(:inhabited_sets) { create_list(:set_with_materials, 2) }
+
+      context 'filter[empty]=true' do
+        it 'returns only empty sets' do
+          get api_v1_sets_path, params: { "filter[empty]" => 'true' }, headers: {
+            "Content-Type": "application/vnd.api+json",
+            "Accept": "application/vnd.api+json",
+            "HTTP_X_AUTHORISATION" => jwt
+          }
+          @body = JSON.parse(response.body, symbolize_names: true)
+          expect(@body[:data].length).to eq 3
+        end
+      end
+
+      context 'filter[empty]=false' do
+        it 'returns only inhabited sets' do
+          get api_v1_sets_path, params: { "filter[empty]" => 'false' }, headers: {
+            "Content-Type": "application/vnd.api+json",
+            "Accept": "application/vnd.api+json",
+            "HTTP_X_AUTHORISATION" => jwt
+          }
+          @body = JSON.parse(response.body, symbolize_names: true)
+          expect(@body[:data].length).to eq 2
+        end
+      end
+
+      context 'filter[empty]=nonsense' do
+        it 'does\'t filter sets' do
+          get api_v1_sets_path, params: { "filter[empty]" => 'nonsense' }, headers: {
+            "Content-Type": "application/vnd.api+json",
+            "Accept": "application/vnd.api+json",
+            "HTTP_X_AUTHORISATION" => jwt
+          }
+          @body = JSON.parse(response.body, symbolize_names: true)
+          expect(@body[:data].length).to eq 5
+        end
+      end
+
+    end
   end
 
 end
