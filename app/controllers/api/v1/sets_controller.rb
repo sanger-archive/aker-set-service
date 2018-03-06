@@ -54,6 +54,12 @@ module Api
         render json: jsondata, status: :created
       end
 
+      def search
+        sets = Aker::Set.find_by(name: search_params[:name])
+        jsondata = JSONAPI::ResourceSerializer.new(Api::V1::SetResource).serialize_to_hash(Api::V1::SetResource.new(sets, nil))
+        render json: jsondata, status: :ok
+      end
+
       def context
         super.merge({owner_id: owner_id})
       end
