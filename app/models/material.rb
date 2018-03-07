@@ -8,6 +8,7 @@ class Material
       faraday.proxy ''
       faraday.request :url_encoded
       faraday.adapter Faraday.default_adapter
+      faraday.use RequestIdMiddleware
       if Rails.env.production? || Rails.env.staging?
         faraday.use ZipkinTracer::FaradayHandler, 'Materials service'
       end

@@ -19,6 +19,15 @@ module Api
         records.where("name LIKE '#{value[0]}%'")
       }
 
+      # sets?filter[empty]=true
+      # If the value is true only return empty sets
+      # If it's false only return inhabited sets
+      # Anything else and don't filter
+      filter :empty, apply: -> (records, value, _options) {
+        # value is actually an Array as JSON API supports multiple filter values (separated by comma)
+        # We're gonna just take the first if that's the case
+        value.first == 'true' ? records.empty : (value.first == 'false') ? records.inhabited : records
+      }
 
       before_create do
         user = context[:current_user]
