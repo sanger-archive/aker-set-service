@@ -29,6 +29,10 @@ gem 'swagger-ui_rails'
 gem 'sprockets-rails'
 gem 'cancancan'
 gem 'bulk_insert'
+gem 'lograge'
+gem 'logstash-event'
+gem 'logstash-logger'
+gem 'request_store'
 
 gem 'aker_credentials_gem', github: 'sanger/aker-credentials'
 
