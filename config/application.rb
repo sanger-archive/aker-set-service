@@ -43,7 +43,5 @@ module SetService
       g.assets false
     end
 
-    config.autoload_paths << Rails.root.join('lib')
-
   end
 end
