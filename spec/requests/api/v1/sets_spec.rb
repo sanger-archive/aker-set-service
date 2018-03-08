@@ -558,6 +558,30 @@ RSpec.describe 'Api::V1::Sets', type: :request do
   end
 
   describe 'filtering' do
+    context 'when filtering by set name' do
+      let!(:sets) do
+        [
+          create(:aker_set, name: 'set 1'),
+          create(:aker_set, name: 'set 2'),
+          create(:aker_set, name: 'work order 3'),
+          create(:aker_set, name: 'set4')
+        ]
+      end
+      it 'returns the sets starting with the characters specified' do
+        get api_v1_sets_path, params: { "filter[search_by_name]" => "set" }, headers: {
+          "Content-Type": "application/vnd.api+json",
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION" => jwt
+        }
+        @body = JSON.parse(response.body, symbolize_names: true)
+        expect(@body[:data].length).to eq 3
+        names = @body[:data].map{|o| o[:attributes][:name]}
+        expect(names.include?('set 1')).to eq(true)
+        expect(names.include?('set 2')).to eq(true)
+        expect(names.include?('work order 3')).to eq(false)
+        expect(names.include?('set4')).to eq(true)
+      end      
+    end
     context 'when filtering locked sets' do
       let!(:sets) do
         [
