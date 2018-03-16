@@ -11,6 +11,12 @@ class Aker::Set < ApplicationRecord
   before_save :sanitise_name, :sanitise_owner
   before_validation :sanitise_name, :sanitise_owner
 
+  # Sets which have Materials in
+  scope :inhabited, -> { joins(:set_materials).distinct }
+
+  # Sets which have no Materials in
+  scope :empty, -> { left_outer_joins(:set_materials).where( aker_set_materials: { aker_material_id: nil }) }
+
   def validate_locked
     errors.add(:base, 'Set is locked') unless changes.empty?
   end

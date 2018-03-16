@@ -42,5 +42,6 @@ module SetService
 
       g.assets false
     end
+
   end
 end
