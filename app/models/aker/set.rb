@@ -22,7 +22,7 @@ class Aker::Set < ApplicationRecord
   end
 
   def clone(newname, owner_email)
-    copy = Aker::Set.create(name: newname, locked: false, owner_id: owner_email)
+    copy = Aker::Set.create!(name: newname, locked: false, owner_id: owner_email)
     copy.materials += materials
     copy
   end
