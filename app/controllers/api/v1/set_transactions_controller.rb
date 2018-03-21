@@ -1,22 +1,30 @@
 module Api
   module V1
     class SetTransactionsController < ApplicationController
-      attr_accessor :owner_id
 
-      skip_authorization_check only: [:create, :index, :show]
-      skip_credentials only: [:show, :index]
-
-      def context
-        super.merge({params: params})
-      end
+      include MaterialsEdition
 
       private
 
       def resource_id
-        params[:id]
+        @resource_id ||= Aker::SetTransaction.find(params[:set_transaction_id] || params[:id]).aker_set_id
       end
 
+      def aker_set
+        @aker_set ||= Aker::Set.find(resource_id)
+      end
 
+      def param_uuids
+        params.require(:data).pluck(:id)
+      end
+
+      def authorise_read
+        authorize! :read, aker_set
+      end
+
+      def authorise_write
+        authorize! :write, aker_set
+      end
 
     end
   end
