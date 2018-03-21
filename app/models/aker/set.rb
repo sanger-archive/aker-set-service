@@ -3,6 +3,8 @@ class Aker::Set < ApplicationRecord
   has_many :set_materials, foreign_key: :aker_set_id, dependent: :destroy
   has_many :materials, through: :set_materials, source: :aker_material
 
+  has_many :set_transactions, foreign_key: :aker_set_id, dependent: :destroy
+
   validates :name, presence: true, uniqueness: true
   validates_format_of :name, without: /,/, message: 'must not contain commas'
 

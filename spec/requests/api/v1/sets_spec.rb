@@ -704,4 +704,145 @@ RSpec.describe 'Api::V1::Sets', type: :request do
     end
   end
 
+
+  describe 'Transactions' do
+    let(:aker_set) { create(:aker_set) }
+    before do
+      allow(Material).to receive(:valid?).and_return(true)
+    end
+    let(:body){ {
+        data: { type: 'set_transactions', attributes: { aker_set_id: aker_set.id, 
+          operation: 'add', status: 'building' } }
+    }.to_json }
+
+    # First msg
+    let(:first_materials_list) { create_list(:aker_material, 3) }
+    let(:first_materials_message) {
+      { data: first_materials_list.map{|m| {id: m.id, type: 'materials'}} }.to_json
+    }
+
+    # Second msg
+    let(:second_materials_list) { create_list(:aker_material, 3) }
+    let(:second_materials_message) {
+      { data: second_materials_list.map{|m| {id: m.id, type: 'materials'}} }.to_json
+    }
+
+    let(:added_material_ids) { [first_materials_list, second_materials_list].flatten.map(&:id) }
+
+    describe 'Create (POST)' do
+      
+
+      it 'returns a 201' do
+        post api_v1_set_transactions_path, params: body, headers: headers
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'conforms to the JSON API schema' do
+        post api_v1_set_transactions_path, params: body, headers: headers
+        expect(response).to match_api_schema('jsonapi')
+      end
+
+      it 'creates a new transaction' do
+        expect{
+          post api_v1_set_transactions_path, params: body, headers: headers
+        }.to(change{
+          Aker::SetTransaction.where(aker_set_id: aker_set.id).count
+        }.from(0).to(1))
+      end
+
+    end
+
+    describe 'Update (PUT)' do
+
+      before do
+        post api_v1_set_transactions_path, params: body, headers: headers
+        @transaction_id = JSON.parse(response.body)['data']['id']
+      end
+
+      it 'adds all materials in subsequent requests to the transaction batch' do
+        post api_v1_set_transaction_relationships_materials_path(@transaction_id), 
+          params: first_materials_message, headers: headers
+        post api_v1_set_transaction_relationships_materials_path(@transaction_id), 
+          params: second_materials_message, headers: headers
+
+        transaction = Aker::SetTransaction.where(aker_set_id: aker_set.id).first
+        created_material_ids_from_transaction = transaction.materials.map(&:aker_set_material_id)
+
+        expect(created_material_ids_from_transaction).to eq(added_material_ids)
+      end
+
+      context 'Commit (status to done)' do
+        let(:commit_message) { 
+          {
+            data: { 
+              id: @transaction_id,
+              type: 'set_transactions', attributes: { 
+              aker_set_id: aker_set.id, operation: 'add', status: 'done', 
+            } }
+          }.to_json 
+        }
+
+        it 'commits all changes to the destination set when changing status do "done"' do
+          post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
+          post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: second_materials_message, headers: headers        
+
+          put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers        
+
+          expect(Aker::Set.find(aker_set.id).materials.map(&:id)).to eq(added_material_ids)
+        end
+
+        it 'does not commit the changes if there is no change of status' do
+          
+        end
+      end
+
+    end
+
+    describe 'Destroy (DELETE)' do
+      let(:commit_message) { 
+        {
+          data: { 
+            id: @transaction_id,
+            type: 'set_transactions', attributes: { 
+            aker_set_id: aker_set.id, operation: 'add', status: 'done', 
+          } }
+        }.to_json 
+      }
+
+      before do
+        post api_v1_set_transactions_path, params: body, headers: headers
+        @transaction_id = JSON.parse(response.body)['data']['id']
+      end
+
+      it 'removes the transaction' do
+        expect{
+          delete api_v1_set_transaction_path(@transaction_id), headers: headers
+        }.to(change{Aker::SetTransaction.where(id: @transaction_id).count}.from(1).to(0))
+      end
+      it 'does not remove the commited changes to the set' do
+        post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
+        put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers
+        expect(Aker::Set.find(aker_set.id).materials.count).not_to eq(0)
+
+        expect {
+          delete api_v1_set_transaction_path(@transaction_id), headers: headers
+          }.not_to(change{
+            Aker::Set.find(aker_set.id).materials.count
+        })
+      end
+      it 'does not commit changes to the set on deletion' do
+        post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
+        expect(Aker::Set.find(aker_set.id).materials.count).to eq(0)
+
+        expect {
+          delete api_v1_set_transaction_path(@transaction_id), headers: headers
+          }.not_to(change{
+            Aker::Set.find(aker_set.id).materials.count
+        })
+      end
+
+    end
+
+  end
+
 end
