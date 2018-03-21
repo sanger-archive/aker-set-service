@@ -95,7 +95,6 @@ RSpec.describe Aker::Set, type: :model do
   end
 
   describe 'Aker::Set.empty / Aker::Set.inhabited' do
-
     before do
       @inhabited_sets = create_list(:set_with_materials, 2)
       @empty_sets = create_list(:aker_set, 3)
@@ -112,6 +111,13 @@ RSpec.describe Aker::Set, type: :model do
       expect(inhabited_sets.count).to eql(2)
       expect(inhabited_sets).to match_array(@inhabited_sets)
     end
+  end
 
+  context 'when cloning a set' do
+    it 'contains the same materials as the original set' do
+      set = create(:set_with_materials, name: 'SetWith5Mats')
+      clone = set.clone('Dolly', 'user@sanger.ac.uk')
+      expect(set.materials.map(&:id).sort).to eq clone.materials.map(&:id).sort
+    end
   end
 end

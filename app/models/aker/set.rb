@@ -24,8 +24,9 @@ class Aker::Set < ApplicationRecord
   end
 
   def clone(newname, owner_email)
-    copy = Aker::Set.create(name: newname, locked: false, owner_id: owner_email)
-    copy.materials += materials
+    copy = Aker::Set.create!(name: newname, locked: false, owner_id: owner_email)
+    material_ids = materials.map(&:id)
+    bulk_insert!(copy, material_ids)
     copy
   end
 
@@ -51,4 +52,12 @@ class Aker::Set < ApplicationRecord
     end
   end
 
+  # bulk_insert class method comes from the "BulkInsert" gem
+  # https://github.com/jamis/bulk_insert#usage
+  def bulk_insert!(aker_set, material_ids)
+    set_material_attrs = material_ids.map do |material_id|
+      { aker_set_id: aker_set.id, aker_material_id: material_id }
+    end
+    Aker::SetMaterial.bulk_insert(values: set_material_attrs)
+  end
 end
