@@ -50,7 +50,7 @@ group :development do
 end
 
 group :test, :development do
-  gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
   gem 'database_cleaner'
   gem 'json-schema'
   gem 'jwt'

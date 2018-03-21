@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :aker_set, class: 'Aker::Set' do
     sequence(:name) { |n| "Set #{n}" }
     owner_id 'user@here.com'
