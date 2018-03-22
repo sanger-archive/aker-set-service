@@ -59,6 +59,18 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
         }.from(0).to(1))
       end
 
+      it 'cannot create a new transaction from a locked set' do
+        aker_set.update_attributes(locked: true)
+        post api_v1_set_transactions_path, params: body, headers: headers
+        expect(Aker::SetTransaction.where(aker_set_id: aker_set.id).count).to eq(0)
+      end
+
+      it 'cannot create a new transaction if you do not have write permissions on the set' do
+        aker_set.update_attributes(owner_id: 'someone@else')
+        post api_v1_set_transactions_path, params: body, headers: headers
+        expect(Aker::SetTransaction.where(aker_set_id: aker_set.id).count).to eq(0)
+      end
+
     end
 
     describe 'Update (PUT)' do
@@ -79,6 +91,16 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
 
         expect(created_material_ids_from_transaction).to eq(added_material_ids)
       end
+
+      it 'cannot add new materials to a transaction with a locked set' do
+        aker_set.update_attributes(locked: true)
+        post api_v1_set_transaction_relationships_materials_path(@transaction_id), 
+          params: first_materials_message, headers: headers
+        transaction = Aker::SetTransaction.where(aker_set_id: aker_set.id).first
+        created_material_ids_from_transaction = transaction.materials.map(&:aker_set_material_id)
+
+        expect(created_material_ids_from_transaction).to eq([])
+      end      
 
       context 'Commit (status to done)' do
         let(:commit_message) { 
@@ -117,6 +139,24 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
           put api_v1_set_transaction_path(@transaction_id), params: not_commit_message, headers: headers
           expect(Aker::Set.find(aker_set.id).materials.count).to eq(0)
         end
+
+        it 'can not add new materials after completing a transaction' do
+          put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers        
+          post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
+          expect(response.status).to eq(422)
+          expect(Aker::Set.find(aker_set.id).materials.count).to eq(0)
+        end
+
+        it 'can not commit changes to a destination set when it is locked' do
+          aker_set.update_attributes(locked: true)
+          post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
+          post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: second_materials_message, headers: headers        
+
+          put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers        
+
+          expect(Aker::Set.find(aker_set.id).materials.map(&:id)).to eq([])          
+        end
+
       end
 
     end

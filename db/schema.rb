@@ -41,10 +41,11 @@ ActiveRecord::Schema.define(version: 20180316160658) do
 
   create_table "aker_set_transactions", force: :cascade do |t|
     t.text     "status"
+    t.integer  "batch_size",  default: 1000
     t.text     "operation"
     t.uuid     "aker_set_id"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
     t.index ["aker_set_id"], name: "index_aker_set_transactions_on_aker_set_id", using: :btree
   end
 

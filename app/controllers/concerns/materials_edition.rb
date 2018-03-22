@@ -43,5 +43,5 @@ module MaterialsEdition
   def context
     super.merge({owner_id: owner_id})
   end
-      
+
 end
