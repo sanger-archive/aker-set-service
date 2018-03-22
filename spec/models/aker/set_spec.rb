@@ -32,6 +32,14 @@ RSpec.describe Aker::Set, type: :model do
     expect(build(:aker_set, name: 'JEFF   ALPHA ')).not_to be_valid
   end
 
+  it 'is not valid with an invalid characters' do
+    expect(build(:aker_set, name: 'alpha/!|')).not_to be_valid
+  end
+
+  it 'is valid with specific characters' do
+    expect(build(:aker_set, name: 'aplha.:beta\'gamma-_123')).to be_valid
+  end
+
   it 'has its owner sanitised' do
     set = create(:aker_set, name: 'myset', owner_id: '   ALPHA@SANGER.AC.UK  ')
     expect(set.owner_id).to eq('alpha@sanger.ac.uk')
