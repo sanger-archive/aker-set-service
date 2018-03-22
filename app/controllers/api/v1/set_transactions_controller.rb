@@ -20,7 +20,7 @@ module Api
 
       def check_set_transaction_locked
         if aker_set_from_creation_params.locked?
-          return render json: { errors: [{ status: '422', title: 'Unprocessable entity', detail: 'Transaction is done' }]}, status: :unprocessable_entity
+          return render json: { errors: [{ status: '422', title: 'Unprocessable entity', detail: 'Set is locked' }]}, status: :unprocessable_entity
         end        
       end
 

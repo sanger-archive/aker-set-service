@@ -62,12 +62,14 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
       it 'cannot create a new transaction from a locked set' do
         aker_set.update_attributes(locked: true)
         post api_v1_set_transactions_path, params: body, headers: headers
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(Aker::SetTransaction.where(aker_set_id: aker_set.id).count).to eq(0)
       end
 
       it 'cannot create a new transaction if you do not have write permissions on the set' do
         aker_set.update_attributes(owner_id: 'someone@else')
         post api_v1_set_transactions_path, params: body, headers: headers
+        expect(response).to have_http_status(:forbidden)
         expect(Aker::SetTransaction.where(aker_set_id: aker_set.id).count).to eq(0)
       end
 
@@ -83,8 +85,10 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
       it 'adds all materials in subsequent requests to the transaction batch' do
         post api_v1_set_transaction_relationships_materials_path(@transaction_id), 
           params: first_materials_message, headers: headers
+        expect(response).to have_http_status(:no_content)
         post api_v1_set_transaction_relationships_materials_path(@transaction_id), 
           params: second_materials_message, headers: headers
+        expect(response).to have_http_status(:no_content)
 
         transaction = Aker::SetTransaction.where(aker_set_id: aker_set.id).first
         created_material_ids_from_transaction = transaction.materials.map(&:aker_set_material_id)
@@ -96,6 +100,7 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
         aker_set.update_attributes(locked: true)
         post api_v1_set_transaction_relationships_materials_path(@transaction_id), 
           params: first_materials_message, headers: headers
+        expect(response).to have_http_status(:unprocessable_entity)
         transaction = Aker::SetTransaction.where(aker_set_id: aker_set.id).first
         created_material_ids_from_transaction = transaction.materials.map(&:aker_set_material_id)
 
@@ -126,34 +131,49 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
 
         it 'commits all changes to the destination set when changing status do "done"' do
           post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
+          expect(response).to have_http_status(:no_content)
           post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: second_materials_message, headers: headers        
-
-          put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers        
+          expect(response).to have_http_status(:no_content)
+          put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers
+          expect(response).to have_http_status(:ok)
 
           expect(Aker::Set.find(aker_set.id).materials.map(&:id)).to eq(added_material_ids)
         end
 
+        it 'does not allow you to change anything after the status is set to "done"' do
+          put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers
+          expect(response).to have_http_status(:ok)
+          put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
         it 'does not commit the changes if there is no change of status' do
           post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
+          expect(response).to have_http_status(:no_content)
           post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: second_materials_message, headers: headers        
+          expect(response).to have_http_status(:no_content)
           put api_v1_set_transaction_path(@transaction_id), params: not_commit_message, headers: headers
+          expect(response).to have_http_status(:ok)
           expect(Aker::Set.find(aker_set.id).materials.count).to eq(0)
         end
 
         it 'can not add new materials after completing a transaction' do
-          put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers        
+          put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers
+          expect(response).to have_http_status(:ok)
           post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
-          expect(response.status).to eq(422)
+          expect(response).to have_http_status(:unprocessable_entity)
           expect(Aker::Set.find(aker_set.id).materials.count).to eq(0)
         end
 
         it 'can not commit changes to a destination set when it is locked' do
           aker_set.update_attributes(locked: true)
           post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
+          expect(response).to have_http_status(:unprocessable_entity)
           post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: second_materials_message, headers: headers        
+          expect(response).to have_http_status(:unprocessable_entity)
 
           put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers        
-
+          expect(response).to have_http_status(:unprocessable_entity)
           expect(Aker::Set.find(aker_set.id).materials.map(&:id)).to eq([])          
         end
 
@@ -184,7 +204,9 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
       end
       it 'does not remove the commited changes to the set' do
         post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
+        expect(response).to have_http_status(:no_content)
         put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers
+        expect(response).to have_http_status(:ok)
         expect(Aker::Set.find(aker_set.id).materials.count).not_to eq(0)
 
         expect {
@@ -195,6 +217,7 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
       end
       it 'does not commit changes to the set on deletion' do
         post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
+        expect(response).to have_http_status(:no_content)
         expect(Aker::Set.find(aker_set.id).materials.count).to eq(0)
 
         expect {
@@ -220,9 +243,11 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
       it 'keeps content for each transaction independently from the others' do
         post api_v1_set_transaction_relationships_materials_path(@transaction_id1), 
           params: first_materials_message, headers: headers
+        expect(response).to have_http_status(:no_content)
 
         post api_v1_set_transaction_relationships_materials_path(@transaction_id2), 
           params: second_materials_message, headers: headers
+        expect(response).to have_http_status(:no_content)
 
         created_material_ids_from_transaction1 = @transaction1.materials.map(&:aker_set_material_id)
         created_material_ids_from_transaction2 = @transaction2.materials.map(&:aker_set_material_id)
@@ -256,14 +281,18 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
         it 'commits changes for each transaction independently from the others' do
           post api_v1_set_transaction_relationships_materials_path(@transaction_id1), 
             params: first_materials_message, headers: headers
+          expect(response).to have_http_status(:no_content)
 
           post api_v1_set_transaction_relationships_materials_path(@transaction_id2), 
             params: second_materials_message, headers: headers
+          expect(response).to have_http_status(:no_content)
 
           expect(aker_set.materials.count).to eq(0)
           put api_v1_set_transaction_path(@transaction_id1), params: commit_message1, headers: headers
+          expect(response).to have_http_status(:ok)
           expect(aker_set.materials.map(&:id)).to eq(first_materials_list.map(&:id))
           put api_v1_set_transaction_path(@transaction_id2), params: commit_message2, headers: headers
+          expect(response).to have_http_status(:ok)
           aker_set.materials.reload
           expect(aker_set.materials.map(&:id)).to eq(added_material_ids)
         end
