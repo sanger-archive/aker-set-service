@@ -4,7 +4,7 @@ class Aker::Set < ApplicationRecord
   has_many :materials, through: :set_materials, source: :aker_material
 
   validates :name, presence: true, uniqueness: true
-  validates_format_of :name, without: /,/, message: 'must not contain commas'
+  validates_format_of :name, with: /\A[a-zA-Z0-9 :'_-]+\z/, message: 'must only contain letters, numbers, spaces, dashes, underscores, colons and apostrophes'
 
   validate :validate_locked, if: :locked_was
 
