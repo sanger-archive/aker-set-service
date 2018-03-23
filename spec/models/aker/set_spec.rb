@@ -33,11 +33,11 @@ RSpec.describe Aker::Set, type: :model do
   end
 
   it 'is not valid with an invalid characters' do
-    expect(build(:aker_set, name: 'alpha/!|')).not_to be_valid
+    expect(build(:aker_set, name: 'al.pha/!|')).not_to be_valid
   end
 
   it 'is valid with specific characters' do
-    expect(build(:aker_set, name: 'aplha.:beta\'gamma-_123')).to be_valid
+    expect(build(:aker_set, name: 'aplha:beta\'gamma-_123')).to be_valid
   end
 
   it 'has its owner sanitised' do
