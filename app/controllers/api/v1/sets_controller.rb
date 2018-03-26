@@ -19,7 +19,6 @@ module Api
         render json: jsondata, status: :created
       end
 
-
     private
 
       def aker_set

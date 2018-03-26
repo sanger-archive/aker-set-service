@@ -73,6 +73,50 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
         expect(Aker::SetTransaction.where(aker_set_id: aker_set.id).count).to eq(0)
       end
 
+      context 'when the transaction operation is create' do
+
+        it 'creates a new transaction when a set name is provided' do
+          body = {
+            data: { type: 'set_transactions', attributes: { set_name: 'testforset', 
+              operation: 'create', status: 'building' } }
+          }.to_json 
+          post api_v1_set_transactions_path, params: body, headers: headers
+          expect(response).to have_http_status(:created)
+        end
+        it 'does not create a transaction without a set name' do
+          body = {
+            data: { type: 'set_transactions', attributes: { 
+              operation: 'create', status: 'building' } }
+          }.to_json 
+          post api_v1_set_transactions_path, params: body, headers: headers
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'does not create a transaction if both set name and set id are defined' do
+          body = {
+            data: { type: 'set_transactions', attributes: { 
+              set_name: 'testforset',  aker_set_id: aker_set.id, 
+              operation: 'create', status: 'building' } }
+          }.to_json 
+          post api_v1_set_transactions_path, params: body, headers: headers
+          expect(response).to have_http_status(:unprocessable_entity)
+
+        end
+
+        it 'does not create a transaction if set id is defined' do
+          body = {
+            data: { type: 'set_transactions', attributes: { 
+              aker_set_id: aker_set.id, 
+              operation: 'create', status: 'building' } }
+          }.to_json 
+          post api_v1_set_transactions_path, params: body, headers: headers
+          expect(response).to have_http_status(:unprocessable_entity)
+
+        end
+
+
+      end
+
     end
 
     describe 'Update (PUT)' do
@@ -113,7 +157,7 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
             data: { 
               id: @transaction_id,
               type: 'set_transactions', attributes: { 
-              aker_set_id: aker_set.id, operation: 'add', status: 'done', 
+              aker_set_id: aker_set.id, status: 'done', 
             } }
           }.to_json 
         }
@@ -123,7 +167,7 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
             data: { 
               id: @transaction_id,
               type: 'set_transactions', attributes: { 
-              aker_set_id: aker_set.id, operation: 'add', status: 'building', 
+              aker_set_id: aker_set.id, status: 'building', 
             } }
           }.to_json 
         }
@@ -175,6 +219,83 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
           put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers        
           expect(response).to have_http_status(:unprocessable_entity)
           expect(Aker::Set.find(aker_set.id).materials.map(&:id)).to eq([])          
+        end
+
+        context 'when the operation is "create"' do
+          let(:body_with_set_name){ {
+              data: { type: 'set_transactions', attributes: { 
+                operation: 'create', status: 'building', set_name: 'anothertest1' } }
+          }.to_json }
+
+          let(:commit_message_without_set_name) { 
+            {
+              data: { 
+                id: @transaction_id,
+                type: 'set_transactions', attributes: { 
+                status: 'done', set_name: nil
+              } }
+            }.to_json 
+          }
+          let(:commit_message_without_set_name_with_set_id) { 
+            {
+              data: { 
+                id: @transaction_id,
+                type: 'set_transactions', attributes: { 
+                aker_set_id: aker_set.id, status: 'done', set_name: nil
+              } }
+            }.to_json 
+          }
+          let(:commit_message) { 
+            {
+              data: { 
+                id: @transaction_id,
+                type: 'set_transactions', attributes: { 
+                status: 'done', 
+              } }
+            }.to_json 
+          }
+
+
+
+          it 'does not allow you to commit when you try to set a null set name in the commit message' do
+            post api_v1_set_transactions_path, params: body_with_set_name, headers: headers
+            @transaction_id = JSON.parse(response.body)['data']['id']
+
+            post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
+            expect(response).to have_http_status(:no_content)
+            post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: second_materials_message, headers: headers        
+            expect(response).to have_http_status(:no_content)
+            put api_v1_set_transaction_path(@transaction_id), params: commit_message_without_set_name, headers: headers
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+
+          it 'does not allow you to commit when you try to set a set id in the commit message' do
+            post api_v1_set_transactions_path, params: body_with_set_name, headers: headers
+            @transaction_id = JSON.parse(response.body)['data']['id']
+
+            post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
+            expect(response).to have_http_status(:no_content)
+            post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: second_materials_message, headers: headers        
+            expect(response).to have_http_status(:no_content)
+            put api_v1_set_transaction_path(@transaction_id), params: commit_message_without_set_name_with_set_id, headers: headers
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+
+          it 'creates the new set and commits all changes to the destination set when changing status do "done"' do
+            post api_v1_set_transactions_path, params: body_with_set_name, headers: headers
+            @transaction_id = JSON.parse(response.body)['data']['id']
+
+            post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
+            expect(response).to have_http_status(:no_content)
+            post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: second_materials_message, headers: headers        
+            expect(response).to have_http_status(:no_content)
+            put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers
+            expect(response).to have_http_status(:ok)
+
+            expect(Aker::Set.find_by(name: 'anothertest1').owner_id).to eq(email)
+            expect(Aker::Set.find_by(name: 'anothertest1').materials.map(&:id)).to eq(added_material_ids)
+          end
+
         end
 
       end

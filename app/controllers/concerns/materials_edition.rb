@@ -8,15 +8,10 @@ module MaterialsEdition
 
     before_action :validate_uuids, only: [:update_relationship, :create_relationship]
     before_action :create_uuids, only: [:update_relationship, :create_relationship]
-    before_action :check_lock, only: [:update, :destroy, :update_relationship, :create_relationship, :destroy_relationship]
 
     before_action :authorise_write, only: [:create_relationship, :update_relationship, :destroy_relationship, :update, :destroy]
     before_action :set_owner, only: :create    
-  end
-
-  def set_owner
-    self.owner_id = params.fetch(:data).dig("attributes", "owner_id")
-    params["data"]["attributes"].delete("owner_id") if self.owner_id
+    before_action :check_lock, only: [:update, :destroy, :update_relationship, :create_relationship, :destroy_relationship]
   end
 
   # This is the only way I found to prevent deleting materials from a set via 'patch'
@@ -25,6 +20,12 @@ module MaterialsEdition
       return render json: { errors: [{ status: '422', title: 'Unprocessable entity', detail: 'Set is locked' }]}, status: :unprocessable_entity
     end
   end
+
+  def set_owner
+    self.owner_id = params.fetch(:data).dig("attributes", "owner_id")
+    params["data"]["attributes"].delete("owner_id") if self.owner_id
+  end
+
 
   # Fail request if the materials do not exist in materials service
   def validate_uuids

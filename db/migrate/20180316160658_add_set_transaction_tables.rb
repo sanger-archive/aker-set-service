@@ -5,7 +5,8 @@ class AddSetTransactionTables < ActiveRecord::Migration[5.0]
         t.text :status
         t.integer :batch_size, default: 1000
         t.text :operation, null: true
-        t.references :aker_set, foreign_key: true, type: :uuid
+        t.string :owner_id
+        t.references :aker_set, foreign_key: true, type: :uuid, null: true
         t.timestamps
       end
       create_table :aker_set_transaction_materials do |t|
