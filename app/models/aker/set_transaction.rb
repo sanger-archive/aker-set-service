@@ -3,7 +3,6 @@ class Aker::SetTransaction < ApplicationRecord
 
   has_many :materials, class_name: "Aker::SetTransactionMaterial", foreign_key: :aker_set_transaction_id, dependent: :destroy
 
-  validates :set_name, uniqueness: true, allow_nil: true
   validate :check_set_name_on_create_operation, if: :is_create_transaction?
 
   def check_set_name_on_create_operation
