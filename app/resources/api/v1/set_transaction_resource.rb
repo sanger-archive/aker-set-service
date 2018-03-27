@@ -16,6 +16,8 @@ module Api
         }
       end
 
+      # this is needed in case we use a 'create' operation. The user that creates the transaction
+      # will be assigned as the creator of the set when providing the commit request
       before_create do
         user = context[:current_user]
         owner_email = context[:owner_id]

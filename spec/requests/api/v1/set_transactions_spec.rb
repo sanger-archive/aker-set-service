@@ -255,9 +255,7 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
             }.to_json 
           }
 
-
-
-          it 'does not allow you to commit when you try to set a null set name in the commit message' do
+          before do
             post api_v1_set_transactions_path, params: body_with_set_name, headers: headers
             @transaction_id = JSON.parse(response.body)['data']['id']
 
@@ -265,30 +263,19 @@ RSpec.describe 'Api::V1::SetTransactions', type: :request do
             expect(response).to have_http_status(:no_content)
             post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: second_materials_message, headers: headers        
             expect(response).to have_http_status(:no_content)
+          end
+
+          it 'does not allow you to commit when you try to set a null set name in the commit message' do
             put api_v1_set_transaction_path(@transaction_id), params: commit_message_without_set_name, headers: headers
             expect(response).to have_http_status(:unprocessable_entity)
           end
 
           it 'does not allow you to commit when you try to set a set id in the commit message' do
-            post api_v1_set_transactions_path, params: body_with_set_name, headers: headers
-            @transaction_id = JSON.parse(response.body)['data']['id']
-
-            post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
-            expect(response).to have_http_status(:no_content)
-            post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: second_materials_message, headers: headers        
-            expect(response).to have_http_status(:no_content)
             put api_v1_set_transaction_path(@transaction_id), params: commit_message_without_set_name_with_set_id, headers: headers
             expect(response).to have_http_status(:unprocessable_entity)
           end
 
           it 'creates the new set and commits all changes to the destination set when changing status do "done"' do
-            post api_v1_set_transactions_path, params: body_with_set_name, headers: headers
-            @transaction_id = JSON.parse(response.body)['data']['id']
-
-            post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: first_materials_message, headers: headers
-            expect(response).to have_http_status(:no_content)
-            post api_v1_set_transaction_relationships_materials_path(@transaction_id), params: second_materials_message, headers: headers        
-            expect(response).to have_http_status(:no_content)
             put api_v1_set_transaction_path(@transaction_id), params: commit_message, headers: headers
             expect(response).to have_http_status(:ok)
 
