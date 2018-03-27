@@ -29,6 +29,10 @@ gem 'swagger-ui_rails'
 gem 'sprockets-rails'
 gem 'cancancan'
 gem 'bulk_insert'
+gem 'lograge'
+gem 'logstash-event'
+gem 'logstash-logger'
+gem 'request_store'
 
 gem 'aker_credentials_gem', github: 'sanger/aker-credentials'
 
@@ -46,7 +50,7 @@ group :development do
 end
 
 group :test, :development do
-  gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
   gem 'database_cleaner'
   gem 'json-schema'
   gem 'jwt'

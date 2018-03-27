@@ -6,5 +6,6 @@ JSONAPI.configure do |config|
   # optional request features
   config.allow_include = true
 
+  config.default_page_size = 25
   config.maximum_page_size = 1000
 end

@@ -558,6 +558,68 @@ RSpec.describe 'Api::V1::Sets', type: :request do
   end
 
   describe 'filtering' do
+    context 'when filtering by set name' do
+      let!(:sets) do
+        [
+          create(:aker_set, name: 'set 1'),
+          create(:aker_set, name: 'set 2'),
+          create(:aker_set, name: 'work order 3'),
+          create(:aker_set, name: 'set4')
+        ]
+      end
+      it 'returns the sets starting with the characters specified' do
+        get api_v1_sets_path, params: { "filter[search_by_name]" => "set" }, headers: {
+          "Content-Type": "application/vnd.api+json",
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION" => jwt
+        }
+        @body = JSON.parse(response.body, symbolize_names: true)
+        expect(@body[:data].length).to eq 3
+        names = @body[:data].map{|o| o[:attributes][:name]}
+        expect(names.include?('set 1')).to eq(true)
+        expect(names.include?('set 2')).to eq(true)
+        expect(names.include?('work order 3')).to eq(false)
+        expect(names.include?('set4')).to eq(true)
+      end      
+    end
+    context 'when filtering locked sets' do
+      let!(:sets) do
+        [
+          create(:aker_set, name: 'locked 1', locked: true),
+          create(:aker_set, name: 'not locked', locked: false),
+          create(:aker_set, name: 'locked 2', locked: true),
+        ]
+      end
+      it 'returns the locked sets' do
+        get api_v1_sets_path, params: { "filter[locked]" => true }, headers: {
+          "Content-Type": "application/vnd.api+json",
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION" => jwt
+        }
+        @body = JSON.parse(response.body, symbolize_names: true)
+        expect(@body[:data].length).to eq 2
+        names = @body[:data].map{|o| o[:attributes][:name]}
+        expect(names.include?('locked 1')).to eq(true)
+        expect(names.include?('locked 2')).to eq(true)
+        expect(names.include?('not locked')).to eq(false)
+      end
+
+      it 'returns the unlocked sets' do
+        get api_v1_sets_path, params: { "filter[locked]" => false }, headers: {
+          "Content-Type": "application/vnd.api+json",
+          "Accept": "application/vnd.api+json",
+          "HTTP_X_AUTHORISATION" => jwt
+        }
+        @body = JSON.parse(response.body, symbolize_names: true)
+        expect(@body[:data].length).to eq 1
+        names = @body[:data].map{|o| o[:attributes][:name]}
+        expect(names.include?('locked 1')).to eq(false)
+        expect(names.include?('locked 2')).to eq(false)
+        expect(names.include?('not locked')).to eq(true)
+      end
+
+    end
+
     context 'when filtering owner email' do
       let(:jeff) { "jeff@here.com" }
       let(:dirk) { "dirk@here.com" }
@@ -596,6 +658,49 @@ RSpec.describe 'Api::V1::Sets', type: :request do
           expect(@body[:data].length).to eq 0
         end
       end
+    end
+
+    describe 'empty/inhabited sets' do
+
+      let!(:empty_sets) { create_list(:aker_set, 3) }
+      let!(:inhabited_sets) { create_list(:set_with_materials, 2) }
+
+      context 'filter[empty]=true' do
+        it 'returns only empty sets' do
+          get api_v1_sets_path, params: { "filter[empty]" => 'true' }, headers: {
+            "Content-Type": "application/vnd.api+json",
+            "Accept": "application/vnd.api+json",
+            "HTTP_X_AUTHORISATION" => jwt
+          }
+          @body = JSON.parse(response.body, symbolize_names: true)
+          expect(@body[:data].length).to eq 3
+        end
+      end
+
+      context 'filter[empty]=false' do
+        it 'returns only inhabited sets' do
+          get api_v1_sets_path, params: { "filter[empty]" => 'false' }, headers: {
+            "Content-Type": "application/vnd.api+json",
+            "Accept": "application/vnd.api+json",
+            "HTTP_X_AUTHORISATION" => jwt
+          }
+          @body = JSON.parse(response.body, symbolize_names: true)
+          expect(@body[:data].length).to eq 2
+        end
+      end
+
+      context 'filter[empty]=nonsense' do
+        it 'does\'t filter sets' do
+          get api_v1_sets_path, params: { "filter[empty]" => 'nonsense' }, headers: {
+            "Content-Type": "application/vnd.api+json",
+            "Accept": "application/vnd.api+json",
+            "HTTP_X_AUTHORISATION" => jwt
+          }
+          @body = JSON.parse(response.body, symbolize_names: true)
+          expect(@body[:data].length).to eq 5
+        end
+      end
+
     end
   end
 

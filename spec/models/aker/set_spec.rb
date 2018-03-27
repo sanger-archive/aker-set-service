@@ -32,6 +32,14 @@ RSpec.describe Aker::Set, type: :model do
     expect(build(:aker_set, name: 'JEFF   ALPHA ')).not_to be_valid
   end
 
+  it 'is not valid with an invalid characters' do
+    expect(build(:aker_set, name: 'al.pha/!|')).not_to be_valid
+  end
+
+  it 'is valid with specific characters' do
+    expect(build(:aker_set, name: 'aplha:beta\'gamma-_123')).to be_valid
+  end
+
   it 'has its owner sanitised' do
     set = create(:aker_set, name: 'myset', owner_id: '   ALPHA@SANGER.AC.UK  ')
     expect(set.owner_id).to eq('alpha@sanger.ac.uk')
@@ -92,5 +100,32 @@ RSpec.describe Aker::Set, type: :model do
     s = create(:aker_set, name: 'jeff')
     t = Aker::Set.find_by(name: 'JEFF')
     expect(t).to eq(s)
+  end
+
+  describe 'Aker::Set.empty / Aker::Set.inhabited' do
+    before do
+      @inhabited_sets = create_list(:set_with_materials, 2)
+      @empty_sets = create_list(:aker_set, 3)
+    end
+
+    it 'can filter for empty Sets' do
+      empty_sets = Aker::Set.empty
+      expect(empty_sets.count).to eql(3)
+      expect(empty_sets).to match_array(@empty_sets)
+    end
+
+    it 'can filter for inhabited Sets' do
+      inhabited_sets = Aker::Set.inhabited
+      expect(inhabited_sets.count).to eql(2)
+      expect(inhabited_sets).to match_array(@inhabited_sets)
+    end
+  end
+
+  context 'when cloning a set' do
+    it 'contains the same materials as the original set' do
+      set = create(:set_with_materials, name: 'SetWith5Mats')
+      clone = set.clone('Dolly', 'user@sanger.ac.uk')
+      expect(set.materials.map(&:id).sort).to eq clone.materials.map(&:id).sort
+    end
   end
 end
