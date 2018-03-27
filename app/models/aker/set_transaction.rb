@@ -39,7 +39,9 @@ class Aker::SetTransaction < ApplicationRecord
           end          
           Aker::SetMaterial.bulk_insert(values: data)
         elsif operation == 'remove'
-          Aker::SetMaterial.where(aker_material_id: group.pluck(:aker_set_material_id)).delete_all
+          if aker_set_id
+            Aker::SetMaterial.where(aker_set_id: aker_set_id, aker_material_id: group.pluck(:aker_set_material_id)).delete_all
+          end
         end
       end
 
