@@ -6,7 +6,7 @@ class Aker::Set < ApplicationRecord
   has_many :set_transactions, foreign_key: :aker_set_id, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
-  validates_format_of :name, without: /,/, message: 'must not contain commas'
+  validates_format_of :name, with: /\A[a-zA-Z0-9 :'_-]+\z/, message: 'must only contain letters, numbers, spaces, dashes, underscores, colons and apostrophes'
 
   validate :validate_locked, if: :locked_was
 
