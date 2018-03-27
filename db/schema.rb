@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180112123648) do
+ActiveRecord::Schema.define(version: 20180326091707) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -31,6 +31,26 @@ ActiveRecord::Schema.define(version: 20180112123648) do
     t.index ["aker_set_id"], name: "index_aker_set_materials_on_aker_set_id", using: :btree
   end
 
+  create_table "aker_set_transaction_materials", force: :cascade do |t|
+    t.uuid     "aker_set_material_id"
+    t.integer  "aker_set_transaction_id"
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+    t.index ["aker_set_transaction_id"], name: "index_operations_on_transaction_id", using: :btree
+  end
+
+  create_table "aker_set_transactions", force: :cascade do |t|
+    t.text     "status"
+    t.integer  "batch_size",  default: 1000
+    t.text     "operation"
+    t.string   "owner_id"
+    t.uuid     "aker_set_id"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.string   "set_name"
+    t.index ["aker_set_id"], name: "index_aker_set_transactions_on_aker_set_id", using: :btree
+  end
+
   create_table "aker_sets", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
     t.citext   "name"
     t.datetime "created_at",                 null: false
@@ -42,4 +62,6 @@ ActiveRecord::Schema.define(version: 20180112123648) do
 
   add_foreign_key "aker_set_materials", "aker_materials"
   add_foreign_key "aker_set_materials", "aker_sets"
+  add_foreign_key "aker_set_transaction_materials", "aker_set_transactions"
+  add_foreign_key "aker_set_transactions", "aker_sets"
 end

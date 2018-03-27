@@ -5,8 +5,13 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      jsonapi_resources :set_transactions do
+        jsonapi_relationships
+      end
+
       jsonapi_resources :sets do
         jsonapi_relationships
+
         post 'clone', to: 'sets#clone'
       end
     end
