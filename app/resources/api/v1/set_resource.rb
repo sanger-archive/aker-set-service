@@ -5,6 +5,7 @@ module Api
       paginator :paged
       attributes :name, :owner_id, :created_at, :locked
       has_many :materials, class_name: 'Material', relation_name: :materials, acts_as_set: true
+      has_many :set_transactions, class_name: 'SetTransaction', relation_name: :set_transaction
 
       filter :name
       filter :locked
@@ -26,7 +27,7 @@ module Api
       filter :empty, apply: -> (records, value, _options) {
         # value is actually an Array as JSON API supports multiple filter values (separated by comma)
         # We're gonna just take the first if that's the case
-        value.first == 'true' ? records.empty : (value.first == 'false') ? records.inhabited : records
+        value.first == 'true' ? records.empty : ((value.first == 'false') ? records.inhabited : records)
       }
 
       before_create do
