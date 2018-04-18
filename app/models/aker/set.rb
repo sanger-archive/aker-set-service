@@ -3,8 +3,10 @@ class Aker::Set < ApplicationRecord
   has_many :set_materials, foreign_key: :aker_set_id, dependent: :destroy
   has_many :materials, through: :set_materials, source: :aker_material
 
+  has_many :set_transactions, foreign_key: :aker_set_id, dependent: :destroy
+
   validates :name, presence: true, uniqueness: true
-  validates_format_of :name, without: /,/, message: 'must not contain commas'
+  validates_format_of :name, with: /\A[a-zA-Z0-9 :'_-]+\z/, message: 'must only contain letters, numbers, spaces, dashes, underscores, colons and apostrophes'
 
   validate :validate_locked, if: :locked_was
 
@@ -22,8 +24,9 @@ class Aker::Set < ApplicationRecord
   end
 
   def clone(newname, owner_email)
-    copy = Aker::Set.create(name: newname, locked: false, owner_id: owner_email)
-    copy.materials += materials
+    copy = Aker::Set.create!(name: newname, locked: false, owner_id: owner_email)
+    material_ids = materials.map(&:id)
+    bulk_insert!(copy, material_ids)
     copy
   end
 
@@ -49,4 +52,12 @@ class Aker::Set < ApplicationRecord
     end
   end
 
+  # bulk_insert class method comes from the "BulkInsert" gem
+  # https://github.com/jamis/bulk_insert#usage
+  def bulk_insert!(aker_set, material_ids)
+    set_material_attrs = material_ids.map do |material_id|
+      { aker_set_id: aker_set.id, aker_material_id: material_id }
+    end
+    Aker::SetMaterial.bulk_insert(values: set_material_attrs)
+  end
 end
