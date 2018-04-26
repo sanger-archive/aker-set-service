@@ -18,7 +18,7 @@ class Material
   def self.valid?(uuids)
     puts "****** Validating materials:\n#{uuids}"
     response = Material.site.post do |req|
-      req.url '/materials/validate'
+      req.url 'materials/validate'
       req.headers['Content-Type'] = 'application/json'
       req.headers['Accept'] = 'application/json'
       req.body = { materials: uuids }.to_json
