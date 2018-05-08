@@ -17,7 +17,7 @@ module Api
 
       filter :search_by_name, apply: -> (records, value, _options) {
         return records.none if value.nil? || value.empty?
-        records.where("name LIKE '#{value[0]}%'")
+        records.where('name LIKE ?', "#{value[0]}%")
       }
 
       # sets?filter[empty]=true
