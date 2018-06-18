@@ -23,8 +23,8 @@ gem 'pry'
 gem 'puma', '~> 3.0'
 gem 'rails', '~> 5.0.0', '>= 5.0.0.1'
 gem 'request_store'
-gem 'rspec-rails'
-gem 'rswag'
+gem 'rswag-api'
+gem 'rswag-ui'
 gem 'sprockets-rails'
 gem 'swagger-ui_rails'
 
@@ -43,6 +43,8 @@ group :test, :development do
   gem 'factory_bot_rails'
   gem 'json-schema'
   gem 'jwt'
+  gem 'rspec-rails'
+  gem 'rswag-specs'
 end
 
 group :development do
