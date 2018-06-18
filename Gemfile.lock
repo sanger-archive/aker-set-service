@@ -195,10 +195,6 @@ GEM
       rspec-mocks (~> 3.7.0)
       rspec-support (~> 3.7.0)
     rspec-support (3.7.1)
-    rswag (2.0.3)
-      rswag-api (= 2.0.3)
-      rswag-specs (= 2.0.3)
-      rswag-ui (= 2.0.3)
     rswag-api (2.0.3)
       railties (>= 3.1, < 6.0)
     rswag-specs (2.0.3)
@@ -281,7 +277,9 @@ DEPENDENCIES
   rake
   request_store
   rspec-rails
-  rswag
+  rswag-api
+  rswag-specs
+  rswag-ui
   rubycritic
   simplecov
   simplecov-rcov
@@ -291,4 +289,4 @@ DEPENDENCIES
   swagger-ui_rails
 
 BUNDLED WITH
-   1.16.1
+   1.16.2
