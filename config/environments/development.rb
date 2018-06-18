@@ -47,10 +47,5 @@ Rails.application.configure do
 
   config.materials_service_url = "http://localhost:5000"
 
-  config.middleware.use ZipkinTracer::RackHandler, { service_name: "Set Service",
-                           service_port: 3000,
-                           sample_rate: 1,
-                           json_api_host: "http://localhost:9411" }
-
   config.jwt_secret_key = 'development'
 end
