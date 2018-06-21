@@ -27,6 +27,7 @@ gem 'rswag-api'
 gem 'rswag-ui'
 gem 'sprockets-rails'
 gem 'swagger-ui_rails'
+gem 'health_check'
 
 ###
 # Sanger gems
