@@ -1,66 +1,62 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 
-gem 'pry'
+# Force git gems to use secure HTTPS
+git_source(:github) do |repo_name|
+  repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?('/')
+  "https://github.com/#{repo_name}.git"
+end
 
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.0.0', '>= 5.0.0.1'
-# Use postgresql as the database for Active Record
-gem 'pg', '~> 0.18'
-# Use Puma as the app server
-gem 'puma', '~> 3.0'
-# Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-# gem 'jbuilder', '~> 2.5'
-# Use Redis adapter to run Action Cable in production
-# gem 'redis', '~> 3.0'
-# Use ActiveModel has_secure_password
-# gem 'bcrypt', '~> 3.1.7'
+# All the gems not in a group will always be installed:
+#   http://bundler.io/v1.6/groups.html#grouping-your-dependencies
 
-# Use Capistrano for deployment
-# gem 'capistrano-rails', group: :development
-
-# Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
-# gem 'rack-cors'
-
-gem 'jsonapi-resources'
-gem 'faraday'
-gem 'zipkin-tracer'
-gem 'rswag'
-gem 'swagger-ui_rails'
-gem 'sprockets-rails'
-gem 'cancancan'
 gem 'bulk_insert'
+gem 'cancancan'
+gem 'faraday'
+gem 'jsonapi-resources'
 gem 'lograge'
 gem 'logstash-event'
 gem 'logstash-logger'
+gem 'pg', '~> 0.18'
+gem 'pry'
+gem 'puma', '~> 3.0'
+gem 'rails', '~> 5.0.0', '>= 5.0.0.1'
 gem 'request_store'
+gem 'rswag-api'
+gem 'rswag-ui'
+gem 'sprockets-rails'
+gem 'swagger-ui_rails'
+gem 'health_check'
 
+###
+# Sanger gems
+###
 gem 'aker_credentials_gem', github: 'sanger/aker-credentials'
 
-group :development, :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+###
+# Groups
+###
+group :test, :development do
+  gem 'brakeman', require: false
   gem 'byebug', platform: :mri
+  gem 'database_cleaner'
+  gem 'factory_bot_rails'
+  gem 'json-schema'
+  gem 'jwt'
+  gem 'rspec-rails'
+  gem 'rswag-specs'
 end
 
 group :development do
   gem 'listen', '~> 3.0.5'
-  # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
-  gem 'brakeman', require: false
 end
 
-group :test, :development do
-  gem 'factory_bot_rails'
-  gem 'database_cleaner'
-  gem 'json-schema'
-  gem 'jwt'
+group :test do
+  gem 'rake'
+  gem 'rubycritic'
+  gem 'simplecov', require: false
+  gem 'simplecov-rcov'
 end
-
-gem 'rspec-rails'
-
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
-
-gem 'simplecov', :require => false, :group => :test
-gem 'simplecov-rcov', :group => :test
-gem 'rubycritic', :group => :test
